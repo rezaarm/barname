@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>دفتر تمرین</title>
+<meta name="theme-color" content="#0d1014">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="دفتر تمرین">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/*
+VOICE: a focused gym tool — short Persian labels, very large numbers you can read mid-set
+IDEA: a lifter's logbook built around a competition weight plate
+PICTURE: the live set card with giant weight/reps; the rest timer is a red plate ring
+COLOUR and TYPE: charcoal or chalk ground, plate-red accent, blue focus, green only for growth; system Persian face (SF Arabic), heavy numerals
+LAYOUT: one-column phone app, bottom tab bar, bottom sheets, full-screen workout mode
+*/
+:root{--bg:#f2f0eb;--card:#fff;--card2:#e9e6df;--ink:#121418;--mute:#646971;--line:#dcd8cf;--red:#d93338;--redsoft:#fbe2e2;--blue:#1b63c6;--grow:#15784a;--growsoft:#dcf1e5;--shadow:0 1px 2px rgba(0,0,0,.05),0 10px 24px -14px rgba(0,0,0,.22);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1014;--card:#161a20;--card2:#222831;--ink:#eef0f2;--mute:#8f96a0;--line:#2a3039;--red:#ef4a4f;--redsoft:#3b1a1c;--blue:#6aa5f5;--grow:#4cc985;--growsoft:#173326;--shadow:none;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0d1014;--card:#161a20;--card2:#222831;--ink:#eef0f2;--mute:#8f96a0;--line:#2a3039;--red:#ef4a4f;--redsoft:#3b1a1c;--blue:#6aa5f5;--grow:#4cc985;--growsoft:#173326;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"SF Arabic","Vazirmatn","Segoe UI",Tahoma,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+body.lock{overflow:hidden}
+[data-do]{cursor:pointer}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#main{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(100px + env(safe-area-inset-bottom))}
+.hd{margin-bottom:16px}
+.kick{font-size:13px;color:var(--mute);margin:0;font-weight:600}
+.ttl{font-size:32px;line-height:1.1;font-weight:850;margin:2px 0 4px;text-wrap:balance}
+.sub{color:var(--mute);margin:0 0 16px;font-size:14px}
+.mute{color:var(--mute)}.sm{font-size:14px}
+.h4{font-size:15px;margin:20px 0 8px;font-weight:800}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:-6px -6px 4px}
+.ib{background:none;border:0;font-weight:700;display:flex;align-items:center;gap:4px;min-height:44px;padding:0 6px}
+.red-t,.danger-t{color:var(--red)}
+.pc{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:20px;padding:16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.pci{flex:1}.pc b{font-size:19px;display:block;line-height:1.3}.pc small{color:var(--mute);font-size:13px}
+.pcx{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.go{width:54px;height:54px;border-radius:50%;background:var(--red);color:#fff;border:0;display:grid;place-items:center;flex:none}
+.add{width:100%;min-height:56px;border:2px dashed var(--line);background:transparent;border-radius:18px;font-weight:700;display:flex;gap:8px;align-items:center;justify-content:center;margin-top:6px}
+.ex{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;padding:10px;margin-bottom:8px;box-shadow:var(--shadow)}
+.th{width:56px;height:56px;border-radius:12px;background:var(--card2);overflow:hidden;display:grid;place-items:center;flex:none;font-weight:800;color:var(--mute);font-size:20px}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.exm{flex:1}.exm b{display:block;font-size:16px;line-height:1.35}.exm small{color:var(--mute);font-size:13px;display:block}
+.ord{display:flex;flex-direction:column;gap:4px}
+.mini{width:40px;height:32px;border:0;background:var(--card2);border-radius:9px;display:grid;place-items:center}
+.dim{opacity:.28}.mini svg{width:18px;height:18px}
+.dock{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));padding:14px 16px 10px;background:linear-gradient(transparent,var(--bg) 40%);display:flex;justify-content:center;z-index:10}
+.dock .big{max-width:608px}
+.spacer{height:84px}
+.big{width:100%;min-height:60px;border:0;border-radius:18px;background:var(--red);color:#fff;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 24px -12px rgba(217,51,56,.75)}
+.big:active,.go:active,.pm:active{transform:scale(.97)}
+#tabs{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);background:var(--card);background:color-mix(in srgb,var(--card) 86%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:20}
+#tabs button{background:none;border:0;color:var(--mute);font-size:11px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:60px}
+#tabs button.on{color:var(--red)}
+#sheet{position:fixed;inset:0;z-index:80}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;transition:opacity .2s}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;max-height:92vh;overflow:auto;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+#sheet.on .scrim{opacity:1}#sheet.on .panel{transform:none}
+.panel h3{font-size:21px;margin:0 0 14px;line-height:1.3}
+.fld{display:block;margin-bottom:12px}.fld>span{display:block;font-size:13px;color:var(--mute);margin-bottom:6px;font-weight:700}
+input,textarea{width:100%;font:inherit;font-size:16px;background:var(--card2);color:var(--ink);border:1.5px solid transparent;border-radius:12px;padding:11px 12px;min-height:48px}
+textarea{resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--blue)}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+.num{text-align:center;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{border:0;background:var(--card2);font-size:14px;font-weight:700;border-radius:999px;padding:0 14px;min-height:40px;white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chip.grow{background:var(--growsoft);color:var(--grow)}
+.restin{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:14px}.restin input{width:100px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.menu{display:grid;gap:8px}
+.btn{min-height:50px;border-radius:14px;border:0;font-weight:700;font-size:16px;background:var(--card2);display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;text-align:center}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.ghost{background:transparent;border:1.5px solid var(--line)}
+.btn.sm{min-height:44px;font-size:14px}
+.upl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:110px;border:2px dashed var(--line);border-radius:16px;color:var(--mute);font-weight:700;margin-bottom:12px;cursor:pointer;font-size:14px}
+.phw{margin-bottom:12px}.phw img{width:100%;height:210px;object-fit:cover;border-radius:16px;display:block}
+.pha{display:flex;gap:8px;margin-top:8px}.pha>*{flex:1}
+#wk{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 4px) 16px calc(28px + env(safe-area-inset-bottom))}
+#wk>*{max-width:600px;margin-left:auto;margin-right:auto}
+.wtop{display:flex;justify-content:space-between;align-items:center}
+.clock{font-weight:850;font-variant-numeric:tabular-nums;font-size:18px}
+.segs{display:flex;gap:4px;margin:4px auto 12px}
+.seg{flex:1;height:24px;border:0;padding:0;--c:var(--card2);background:linear-gradient(var(--c),var(--c)) center/100% 6px no-repeat;border-radius:4px}
+.seg.part{--c:#e88f92}.seg.done{--c:var(--red)}.seg.cur{background-size:100% 12px;--c:var(--ink)}.seg.cur.done{--c:var(--red)}
+.wcard{background:var(--card);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);padding-bottom:14px}
+.wph{height:min(30vh,250px);background:var(--card2);display:grid;place-items:center}
+.wph.np{height:130px}.wph.np .plate{width:90px;height:90px}.wph img{width:100%;height:100%;object-fit:cover;display:block}
+.plate{width:120px;height:120px}
+.wcard .kick{padding:14px 16px 0}
+.wcard h2{font-size:26px;line-height:1.2;margin:2px 16px 6px;font-weight:850}
+.note{margin:4px 16px 10px;background:var(--redsoft);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.7;white-space:pre-wrap;cursor:pointer}.note b{display:block;font-size:12px;color:var(--red);margin-bottom:2px}.note span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.note.open span{display:block}.note small{display:block;color:var(--red);font-weight:700;font-size:12px;margin-top:2px}.note.open small{display:none}.exn{color:var(--red)!important;font-weight:700}
+.sets{display:flex;gap:6px;overflow-x:auto;padding:6px 16px 2px;scrollbar-width:none}
+.st{flex:none;min-width:70px;border-radius:12px;background:var(--card2);padding:6px 8px;text-align:center}
+.st small{display:block;font-size:11px;color:var(--mute);font-weight:700}.st b{font-size:15px;white-space:nowrap}
+.st.ok{background:var(--redsoft)}.st.ok b{color:var(--red)}
+.st.now{box-shadow:inset 0 0 0 2px var(--ink)}
+.stp2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:12px auto}
+.stp{background:var(--card);border-radius:20px;padding:10px 8px;box-shadow:var(--shadow);text-align:center}
+.lab{font-size:13px;color:var(--mute);font-weight:700}
+.ctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-top:2px}
+.ctl input{grid-column:1/-1;background:none;border:0;text-align:center;font-size:clamp(30px,10vw,44px);font-weight:850;padding:0;min-height:58px;font-variant-numeric:tabular-nums}
+.pm{width:100%;height:46px;border-radius:12px;border:0;background:var(--card2);font-size:26px;font-weight:700;line-height:1;display:grid;place-items:center}
+.hint{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:13px;color:var(--mute);margin:0 auto 12px}
+.wnav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.wnav .btn{padding:0 6px}
+.alld{margin-top:16px;background:var(--growsoft);border-radius:18px;padding:14px;text-align:center}.alld b{display:block;margin-bottom:10px;color:var(--grow)}
+#rest{position:fixed;inset:0;z-index:60;background:var(--bg);display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px)}
+.rin{width:100%;max-width:420px;text-align:center}
+.rin .kick{font-size:16px}
+.ring{position:relative;width:min(70vw,300px);aspect-ratio:1;margin:10px auto 22px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.trk{fill:none;stroke:var(--card2);stroke-width:20}
+.prg{fill:none;stroke:var(--red);stroke-width:20;stroke-linecap:round;stroke-dasharray:703.7;transition:stroke-dashoffset .25s linear}
+.rt{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(52px,18vw,78px);font-weight:850;font-variant-numeric:tabular-nums;direction:ltr}
+.nx{color:var(--mute);margin-top:16px;font-size:15px}
+#rest.go{background:var(--red);color:#fff}
+.gohead{font-size:36px;font-weight:850;margin:0}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.tile{background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow)}
+.panel .tile{background:var(--card2);box-shadow:none}
+.tile b{display:block;font-size:clamp(19px,6vw,25px);font-weight:850;line-height:1.25;white-space:nowrap}
+.tile small{color:var(--mute);font-size:12px;font-weight:600;display:block;line-height:1.35}
+.srow{width:100%;display:flex;align-items:center;gap:12px;background:var(--card);border:0;border-radius:16px;padding:12px 14px;margin-bottom:8px;text-align:start;box-shadow:var(--shadow)}
+.srow .m{flex:1}.srow b{display:block;line-height:1.35}.srow small{color:var(--mute);font-size:13px}
+.spark{width:84px;height:34px}
+.up{color:var(--grow);font-weight:800}.dn{color:var(--red);font-weight:800}
+.hero{display:flex;gap:14px;align-items:center}
+.hero .th{width:72px;height:72px;border-radius:16px}
+.seg4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--card2);border-radius:12px;padding:3px;margin:6px 0 10px}
+.seg4 button{border:0;background:none;font-size:14px;font-weight:700;color:var(--mute);min-height:40px;border-radius:10px}
+.seg4 button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.fig{position:relative;height:240px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);direction:ltr}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;stroke:none}
+.sess{background:var(--card);border-radius:16px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.panel .sess{background:var(--card2);box-shadow:none}
+.sess header{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.pr{background:var(--growsoft);color:var(--grow);font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.setl{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}.setl span{background:var(--card2);border-radius:8px;padding:2px 8px;font-size:14px;font-weight:700;white-space:nowrap}
+.panel .setl span{background:var(--card)}
+.dt{width:54px;flex:none;text-align:center;background:var(--card2);border-radius:12px;padding:6px 0;line-height:1.2}.dt b{font-size:20px}.dt small{font-size:11px;display:block}
+.sec{background:var(--card);border-radius:18px;padding:6px 14px 10px;margin-bottom:12px;box-shadow:var(--shadow)}
+.sec h4{margin:10px 0 8px;font-size:13px;color:var(--mute)}
+.li{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;border-top:1px solid var(--line);padding:8px 0}
+.li.first{border-top:0}.li b{display:block;font-size:15px}.li small{color:var(--mute);font-size:12px;display:block;line-height:1.45}
+.sw{width:52px;height:32px;border-radius:999px;border:0;background:var(--card2);position:relative;flex:none;padding:0}
+.sw i{position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:right .2s}
+.sw.on{background:var(--grow)}.sw.on i{right:23px}
+.steps{margin:4px 0 6px;padding-inline-start:20px;font-size:14px}.steps li{margin-bottom:4px}
+.warn{background:var(--redsoft);color:var(--red);padding:10px 12px;border-radius:12px;font-size:14px;font-weight:600}
+.empty{text-align:center;padding:20px 8px}.empty .plate{width:170px;height:170px}.empty h2{font-size:24px;margin:10px 0 4px}.empty p{margin:0 0 18px}
+.empty .menu{max-width:340px;margin:0 auto}
+.resume{width:100%;display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border:0;border-radius:18px;padding:14px 16px;text-align:start;margin-bottom:14px}
+.resume div{flex:1}.resume b{display:block}.resume small{opacity:.75}
+.pulse{width:12px;height:12px;border-radius:50%;background:var(--red);flex:none;animation:pl 1.6s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(217,51,56,.6)}70%{box-shadow:0 0 0 10px rgba(217,51,56,0)}100%{box-shadow:0 0 0 0 rgba(217,51,56,0)}}
+.bm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.bmi{background:var(--card);border:0;border-radius:16px;padding:10px 12px;text-align:start;box-shadow:var(--shadow)}
+.bmi.on{box-shadow:inset 0 0 0 2px var(--red)}
+.bmi small{display:block;color:var(--mute);font-size:12px;font-weight:700}
+.bmi b{font-size:22px;font-weight:850;white-space:nowrap}.bmi i{font-style:normal;font-size:12px;color:var(--mute);margin-inline-start:3px}
+.bmi em{font-style:normal;font-size:12px;font-weight:800;margin-inline-start:6px}
+.bphoto{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;font-size:15px;opacity:0;transition:.2s;z-index:100;pointer-events:none;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:360px){.ttl{font-size:28px}}
+</style>
+</head>
+<body>
+<main id="main"></main>
+<nav id="tabs">
+ <button data-do="tab" data-tab="plans"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>برنامه‌ها</button>
+ <button data-do="tab" data-tab="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>تاریخچه</button>
+ <button data-do="tab" data-tab="body"><svg viewBox="0 0 24 24"><path d="M4 12h16M7 8v8M17 8v8M2.5 10v4M21.5 10v4"/></svg>بدن</button>
+ <button data-do="tab" data-tab="stats"><svg viewBox="0 0 24 24"><path d="M4 19h16M6 15l4-4 3 3 5-6"/></svg>آمار</button>
+ <button data-do="tab" data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>تنظیمات</button>
+</nav>
+<section id="wk" hidden></section>
+<div id="rest" hidden></div>
+<div id="sheet" hidden><div class="scrim"></div><div class="panel" id="panel"></div></div>
+<div id="toast" role="status"></div>
+<script>
+{
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const NF=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:2,useGrouping:false});
+const NG=new Intl.NumberFormat('fa-IR',{maximumFractionDigits:1});
+const fa=n=>NF.format(n);
+const toFa=s=>String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const num=s=>{s=String(s??'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[٫,،]/g,'.');const v=parseFloat(s);return isFinite(v)?v:0};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const DF=(o)=>{try{return new Intl.DateTimeFormat('fa-IR-u-ca-persian',o)}catch(e){return new Intl.DateTimeFormat('fa-IR',o)}};
+const dFmt=DF({year:'numeric',month:'long',day:'numeric'}),dShort=DF({month:'short',day:'numeric'}),dDay=DF({day:'numeric'}),dMon=DF({month:'short'}),wd=DF({weekday:'long'});
+const pz=n=>String(n).padStart(2,'0');
+const clk=ms=>{const t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return toFa(h?`${h}:${pz(m)}:${pz(s)}`:`${m}:${pz(s)}`)};
+const mmss=sec=>clk(Math.ceil(Math.max(0,sec))*1000);
+const dur=ms=>{const m=Math.max(1,Math.round(ms/60000));return m<60?fa(m)+' دقیقه':fa(Math.floor(m/60))+' ساعت'+(m%60?' و '+fa(m%60)+' دقیقه':'')};
+const wtxt=w=>w>0?fa(w)+' کیلو':'وزن بدن';
+const wshort=w=>w>0?fa(w):'بدن';
+const vfmt=v=>v>=1000?NG.format(Math.round(v/100)/10)+' تن':fa(Math.round(v))+' کیلو';
+const key=n=>String(n).trim().replace(/\s+/g,' ').toLowerCase();
+const top=e=>Math.max(0,...e.sets.map(x=>x.w));
+const e1=e=>Math.max(0,...e.sets.map(x=>x.r<=1?x.w:x.w*(1+x.r/30)));
+const vol=e=>e.sets.reduce((a,x)=>a+x.w*x.r,0);
+const reps=e=>e.sets.reduce((a,x)=>a+x.r,0);
+const signed=(d,u='')=>`<span dir="ltr">${d>0?'+':d<0?'−':''}${fa(Math.abs(Math.round(d*10)/10))}</span>${u}`;
+const I={
+plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+play:'<svg viewBox="0 0 24 24"><path d="M8 5.5l11 6.5-11 6.5z" style="fill:currentColor"/></svg>',
+up:'<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
+down:'<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+back:'<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+fwd:'<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
+cam:'<svg viewBox="0 0 24 24" style="width:30px;height:30px"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+dots:'<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7" style="fill:currentColor"/><circle cx="12" cy="12" r="1.7" style="fill:currentColor"/><circle cx="19" cy="12" r="1.7" style="fill:currentColor"/></svg>'
+};
+const plate=`<svg class="plate" viewBox="0 0 200 200" aria-hidden="true"><rect x="0" y="91" width="200" height="18" rx="5" style="fill:var(--mute);opacity:.45;stroke:none"/><circle cx="100" cy="100" r="86" style="fill:var(--red);stroke:none"/><circle cx="100" cy="100" r="74" style="fill:none;stroke:#fff;stroke-opacity:.25;stroke-width:2"/><circle cx="100" cy="100" r="38" style="fill:#000;fill-opacity:.16;stroke:none"/><circle cx="100" cy="100" r="15" style="fill:var(--card2);stroke:none"/><text x="100" y="56" text-anchor="middle" style="font:800 19px -apple-system,Tahoma,sans-serif;fill:#fff;fill-opacity:.9;stroke:none">۲۰</text></svg>`;
+const PRESETS=['پرس سینه هالتر','پرس سینه دمبل','پرس بالا سینه هالتر','پرس بالا سینه دمبل','قفسه سینه دمبل','کراس‌اوور','دیپ پارالل','شنا سوئدی','بارفیکس','زیربغل سیمکش','زیربغل هالتر خم','زیربغل دمبل تک خم','ددلیفت','اسکات هالتر','پرس پا','جلو پا دستگاه','پشت پا دستگاه','لانج دمبل','ساق پا ایستاده','سرشانه هالتر از جلو','سرشانه دمبل نشسته','نشر جانب دمبل','نشر خم','شراگ دمبل','جلو بازو هالتر','جلو بازو دمبل','جلو بازو چکشی','پشت بازو سیمکش','پشت بازو هالتر خوابیده','پشت بازو دمبل از پشت سر','پلانک','کرانچ'];
+const BM=[['weight','وزن','کیلو'],['fat','چربی بدن','٪'],['neck','گردن','سانت'],['shoulder','سرشانه','سانت'],['chest','سینه','سانت'],['arm','بازو','سانت'],['forearm','ساعد','سانت'],['waist','کمر','سانت'],['belly','شکم','سانت'],['hip','باسن','سانت'],['thigh','ران','سانت'],['calf','ساق','سانت']];
+const BMk=Object.fromEntries(BM.map(b=>[b[0],b]));
+
+/* ---------- storage ---------- */
+let db=null;const memPhotos=new Map();
+function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('gymlog',1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('kv');d.createObjectStore('photos')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+function tx(store,mode,fn){return new Promise((res,rej)=>{try{const t=db.transaction(store,mode),r=fn(t.objectStore(store));t.oncomplete=()=>res(r&&r.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)}catch(e){rej(e)}})}
+const kvGet=k=>db?tx('kv','readonly',s=>s.get(k)):Promise.resolve(null);
+const kvSet=(k,v)=>db?tx('kv','readwrite',s=>s.put(v,k)):Promise.resolve();
+const photoGet=id=>db?tx('photos','readonly',s=>s.get(id)).then(b=>b||memPhotos.get(id)):Promise.resolve(memPhotos.get(id));
+async function photoSet(id,b){memPhotos.set(id,b);if(db)await tx('photos','readwrite',s=>s.put(b,id))}
+async function photoDel(id){if(!id)return;memPhotos.delete(id);const u=urlC.get(id);if(u){URL.revokeObjectURL(u);urlC.delete(id)}if(db)await tx('photos','readwrite',s=>s.delete(id)).catch(()=>{})}
+const urlC=new Map();
+async function photoURL(id){if(urlC.has(id))return urlC.get(id);try{const b=await photoGet(id);if(!b)return null;const u=URL.createObjectURL(b);urlC.set(id,u);return u}catch(e){return null}}
+function hydrate(root){for(const img of $$('img[data-pid]',root))if(!img.src)photoURL(img.dataset.pid).then(u=>{if(u)img.src=u})}
+async function shrink(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});const sc=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',.82))}catch(e){return file}finally{URL.revokeObjectURL(url)}}
+const b2d=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
+const d2b=u=>{const i=u.indexOf(','),m=(u.slice(0,i).match(/:(.*?);/)||[])[1]||'image/jpeg',s=atob(u.slice(i+1)),a=new Uint8Array(s.length);for(let k=0;k<s.length;k++)a[k]=s.charCodeAt(k);return new Blob([a],{type:m})};
+
+const DEF={step:2.5,sound:true,loud:true,wake:true};
+let S={plans:[],sessions:[],body:[],settings:{...DEF}},W=null,tab='plans',sub=null,metric='top',bmetric='weight';
+let saveT;const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>kvSet('state',S).catch(()=>{}),120)};
+const saveW=()=>kvSet('active',W).catch(()=>{});
+
+/* ---------- audio ---------- */
+let ac=null,sched=[],schedOK=false,lastTick=null,wl=null;
+function unlock(){try{if(navigator.audioSession)navigator.audioSession.type=S.settings.loud?'playback':'ambient'}catch(e){}try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=ac||new C();if(ac.state!=='running')ac.resume();const b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0)}catch(e){}}
+function tone(f,t0,d,g=.6){const o=ac.createOscillator(),v=ac.createGain();o.type='square';o.frequency.value=f;v.gain.setValueAtTime(0,t0);v.gain.linearRampToValueAtTime(g*.35,t0+.01);v.gain.setValueAtTime(g*.35,t0+d-.03);v.gain.linearRampToValueAtTime(0,t0+d);o.connect(v);v.connect(ac.destination);o.start(t0);o.stop(t0+d+.02);return{o,v}}
+function beep(k){if(!S.settings.sound||!ac)return;try{if(ac.state!=='running')ac.resume();const t=ac.currentTime+.03;if(k==='tick')tone(700,t,.09,.5);else{tone(880,t,.16);tone(880,t+.26,.16);tone(1320,t+.52,.55)}}catch(e){}}
+function cancelSched(){for(const s of sched){try{s.o.stop()}catch(e){}try{s.v.disconnect()}catch(e){}}sched=[];schedOK=false}
+function scheduleRest(){cancelSched();if(!S.settings.sound||!ac||!W||!W.rest)return;try{if(ac.state!=='running')ac.resume();const rem=(W.rest.end-Date.now())/1000;if(rem<=0)return;const t=ac.currentTime+rem;for(const k of [3,2,1])if(rem>k+.2)sched.push(tone(700,t-k,.09,.5));sched.push(tone(880,t,.16),tone(880,t+.26,.16),tone(1320,t+.52,.55));schedOK=true}catch(e){schedOK=false}}
+async function wake(){if(!S.settings.wake)return;try{if(navigator.wakeLock)wl=await navigator.wakeLock.request('screen')}catch(e){}}
+function unwake(){try{wl&&wl.release()}catch(e){}wl=null}
+
+/* ---------- ui helpers ---------- */
+let sheetT,sheetCancel=null;
+function openSheet(html,mount){clearTimeout(sheetT);sheetCancel=null;const p=$('#panel');p.innerHTML=html;p.scrollTop=0;$('#sheet').hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>$('#sheet').classList.add('on')));hydrate(p);mount&&mount(p)}
+function closeSheet(){$('#sheet').classList.remove('on');sheetT=setTimeout(()=>{$('#sheet').hidden=true;$('#panel').innerHTML=''},260)}
+$('#sheet .scrim').addEventListener('click',()=>{const c=sheetCancel;closeSheet();c&&c()});
+function ask(msg,ok='بله',danger=true){return new Promise(res=>{openSheet(`<h3>${esc(msg)}</h3><div class="row2"><button class="btn ghost" id="a-no">انصراف</button><button class="btn ${danger?'danger':'primary'}" id="a-yes">${esc(ok)}</button></div>`,p=>{sheetCancel=()=>res(false);$('#a-no',p).onclick=()=>{closeSheet();res(false)};$('#a-yes',p).onclick=()=>{closeSheet();res(true)}})})}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
+function nav(t,s=null){tab=t;sub=s;render();window.scrollTo(0,0)}
+let chartRO=null;
+function lineChart(f,vals,ds){if(chartRO){chartRO.disconnect();chartRO=null}if(!f||!vals.length)return;
+ const draw=()=>{const w=f.clientWidth,H=f.clientHeight;if(!w)return;const pl=16,pr=46,pt=26,pb=30;let mn=Math.min(...vals),mx=Math.max(...vals);if(mn===mx){mn=mn*.9;mx=mx*1.1||1}const pad=(mx-mn)*.12,lo=Math.max(0,mn-pad),hi=mx+pad;
+ const X=i=>vals.length<2?pl+(w-pl-pr)/2:pl+i*(w-pl-pr)/(vals.length-1),Y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb);
+ let g='';for(let k=0;k<4;k++){const v=lo+(hi-lo)*k/3,y=Y(v).toFixed(1);g+=`<line x1="${pl}" x2="${w-pr+4}" y1="${y}" y2="${y}" style="stroke:var(--line);stroke-width:1"/><text x="${w-pr+9}" y="${+y+4}" style="font:12px -apple-system,Tahoma,sans-serif;fill:var(--mute)">${fa(Math.round(v*10)/10)}</text>`}
+ const pts=vals.map((v,i)=>[X(i),Y(v)]),line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(''),area=line+`L${pts[pts.length-1][0].toFixed(1)} ${H-pb}L${pts[0][0].toFixed(1)} ${H-pb}Z`;
+ const dots=pts.length<=40?pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.6" style="fill:var(--card);stroke:var(--red);stroke-width:2"/>`).join(''):'';
+ const L=pts[pts.length-1],lx=Math.max(pl+20,Math.min(L[0],w-pr-4));
+ const lbl=`<text x="${lx.toFixed(1)}" y="${Math.max(16,L[1]-12).toFixed(1)}" text-anchor="${L[0]>w-pr-30?'end':'middle'}" style="font:800 14px -apple-system,Tahoma,sans-serif;fill:var(--ink)">${fa(vals[vals.length-1])}</text>`;
+ const dl=`<text x="${pl}" y="${H-9}" style="font:12px -apple-system,Tahoma,sans-serif;fill:var(--mute)">${dShort.format(ds[0])}</text>`+(ds.length>1?`<text x="${w-pr}" y="${H-9}" text-anchor="end" style="font:12px -apple-system,Tahoma,sans-serif;fill:var(--mute)">${dShort.format(ds[ds.length-1])}</text>`:'');
+ f.innerHTML=`<svg viewBox="0 0 ${w} ${H}" role="img"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--red);stop-opacity:.26"/><stop offset="1" style="stop-color:var(--red);stop-opacity:0"/></linearGradient></defs>${g}${pts.length>1?`<path d="${area}" style="fill:url(#ga);stroke:none"/><path d="${line}" style="fill:none;stroke:var(--red);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round"/>`:''}${dots}${lbl}${dl}</svg>`};
+ chartRO=new ResizeObserver(draw);chartRO.observe(f);draw()}
+const spark=v=>{if(!v.length)return'';const mn=Math.min(...v),mx=Math.max(...v),r=mx-mn||1;const p=v.length<2?`0,17 100,17`:v.map((x,i)=>`${(i/(v.length-1)*100).toFixed(1)},${(30-(x-mn)/r*26).toFixed(1)}`).join(' ');return`<svg class="spark" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true"><polyline points="${p}" style="fill:none;stroke:var(--red);stroke-width:2;vector-effect:non-scaling-stroke"/></svg>`};
+
+/* ---------- data helpers ---------- */
+function histFor(name){const k=key(name),out=[];for(const s of S.sessions){const e=s.entries.find(e=>key(e.name)===k);if(e&&e.sets.length)out.push({s,e})}return out.sort((a,b)=>a.s.start-b.s.start)}
+function lastDone(pid){let t=0;for(const s of S.sessions)if(s.planId===pid&&s.start>t)t=s.start;return t}
+function allNames(){const m=new Set();for(const p of S.plans)for(const e of p.exercises)m.add(e.name);for(const s of S.sessions)for(const e of s.entries)m.add(e.name);return[...m]}
+function findPhoto(name){const k=key(name);for(const p of S.plans)for(const e of p.exercises)if(e.photoId&&key(e.name)===k)return e.photoId;return null}
+function exList(){const m=new Map();for(const s of S.sessions)for(const e of s.entries){if(!e.sets.length)continue;const k=key(e.name);const o=m.get(k)||{name:e.name,last:0};if(s.start>=o.last){o.last=s.start;o.name=e.name}m.set(k,o)}return[...m.values()].sort((a,b)=>b.last-a.last)}
+const bodySorted=()=>[...S.body].sort((a,b)=>a.t-b.t);
+const curPlan=()=>S.plans.find(p=>p.id===(sub&&sub.plan));
+
+/* ---------- views ---------- */
+function render(){$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));if(chartRO){chartRO.disconnect();chartRO=null}let h;
+ if(tab==='plans')h=sub&&sub.plan?vPlan(sub.plan):vPlans();else if(tab==='history')h=vHistory();else if(tab==='body')h=vBody();else if(tab==='stats')h=sub&&sub.ex?vEx(sub.ex):vStats();else h=vSettings();
+ const m=$('#main');m.innerHTML=h;hydrate(m);
+ if(tab==='stats'&&sub&&sub.ex){const hh=histFor(sub.ex);lineChart($('#chart'),hh.map(x=>MET[metric][2](x.e)),hh.map(x=>x.s.start))}
+ if(tab==='body'){const L=bodySorted().filter(b=>b.m[bmetric]>0);lineChart($('#chart'),L.map(b=>b.m[bmetric]),L.map(b=>b.t))}}
+
+function vPlans(){const now=new Date();
+ return `<header class="hd"><p class="kick">${wd.format(now)} · ${dFmt.format(now)}</p><h1 class="ttl">برنامه‌های تمرین</h1></header>
+ ${W?`<button class="resume" data-do="resume"><span class="pulse"></span><div><b>تمرین در جریان: ${esc(W.planName)}</b><small>${clk(Date.now()-W.start)} گذشته · بزن تا ادامه بدی</small></div>${I.fwd}</button>`:''}
+ ${S.plans.length?S.plans.map(p=>{const l=lastDone(p.id);return`<div class="pc" data-do="openPlan" data-id="${p.id}"><div class="pci"><b>${esc(p.name)}</b><small>${fa(p.exercises.length)} حرکت${l?' · آخرین بار '+dShort.format(l):''}</small><div class="pcx">${esc(p.exercises.map(e=>e.name).join(' · ')||'هنوز حرکتی نداره')}</div></div>${p.exercises.length?`<button class="go" data-do="start" data-id="${p.id}" aria-label="شروع تمرین">${I.play}</button>`:''}</div>`}).join('')+`<button class="add" data-do="newPlan">${I.plus} برنامه‌ی جدید</button>`
+ :`<div class="empty">${plate}<h2>اولین برنامه‌ت رو بساز</h2><p class="mute">مثلاً «روز ۱: سینه و پشت بازو». بعد حرکت‌ها رو به ترتیب اضافه کن.</p><div class="menu"><button class="big" data-do="newPlan">${I.plus} برنامه‌ی جدید</button><button class="btn ghost" data-do="samplePlan">یه برنامه‌ی نمونه بساز</button></div></div>`}`}
+
+function vPlan(id){const p=S.plans.find(x=>x.id===id);if(!p){sub=null;return vPlans()}const l=lastDone(p.id),n=p.exercises.length;
+ return `<div class="bar"><button class="ib" data-do="back">${I.back}<span>برنامه‌ها</span></button><button class="ib" data-do="planMenu" data-id="${p.id}" aria-label="گزینه‌ها">${I.dots}</button></div>
+ <h1 class="ttl">${esc(p.name)}</h1><p class="sub">${fa(n)} حرکت · ${fa(p.exercises.reduce((a,e)=>a+e.sets,0))} ست${l?' · آخرین بار '+dShort.format(l):''}</p>
+ ${p.exercises.map((e,i)=>`<div class="ex" data-do="editEx" data-id="${e.id}"><div class="th">${e.photoId?`<img data-pid="${e.photoId}" alt="">`:fa(i+1)}</div><div class="exm"><b>${esc(e.name)}</b><small>${fa(e.sets)} ست × ${fa(e.reps)} تکرار · ${wtxt(e.weight)}</small><small>استراحت ${mmss(e.rest)}${e.note?' · <span class="exn">ملاحظات دارد</span>':''}</small></div><div class="ord"><button class="mini ${i?'':'dim'}" data-do="mvUp" data-id="${e.id}" aria-label="بالاتر">${I.up}</button><button class="mini ${i<n-1?'':'dim'}" data-do="mvDown" data-id="${e.id}" aria-label="پایین‌تر">${I.down}</button></div></div>`).join('')||'<p class="mute">هنوز حرکتی اضافه نکردی. حرکت‌ها رو به همون ترتیبی که می‌زنی اضافه کن.</p>'}
+ <button class="add" data-do="addEx">${I.plus} افزودن حرکت</button>
+ ${n?`<div class="spacer"></div><div class="dock"><button class="big" data-do="start" data-id="${p.id}">${I.play} شروع تمرین</button></div>`:''}`}
+
+function vHistory(){const ss=[...S.sessions].sort((a,b)=>b.start-a.start),mo=S.sessions.filter(s=>s.start>Date.now()-30*864e5).length;
+ return `<header class="hd"><p class="kick">${fa(mo)} تمرین در ۳۰ روز اخیر</p><h1 class="ttl">تاریخچه</h1></header>
+ ${ss.length?ss.map(s=>{const v=s.entries.reduce((a,e)=>a+vol(e),0),n=s.entries.reduce((a,e)=>a+e.sets.length,0);return`<button class="srow" data-do="openSession" data-id="${s.id}"><div class="dt"><b>${dDay.format(s.start)}</b><small>${dMon.format(s.start)}</small></div><div class="m"><b>${esc(s.planName)}</b><small>${wd.format(s.start)} · ${dur(s.end-s.start)} · ${fa(n)} ست · ${vfmt(v)}</small></div></button>`}).join('')
+ :`<div class="empty">${plate}<h2>هنوز تمرینی ثبت نشده</h2><p class="mute">یه برنامه رو شروع کن؛ هر تمرینی که تموم کنی اینجا میاد.</p></div>`}`}
+
+const MET={top:['وزنه',e=>top(e)],e1:['۱RM',e=>Math.round(e1(e)*10)/10],vol:['حجم',e=>vol(e)],reps:['تکرار',e=>reps(e)]};
+for(const k in MET)MET[k].splice(1,0,'');
+function vStats(){const L=exList(),n=S.sessions.length,wk=S.sessions.filter(s=>s.start>Date.now()-7*864e5).length,tv=S.sessions.reduce((a,s)=>a+s.entries.reduce((b,e)=>b+vol(e),0),0);
+ return `<header class="hd"><p class="kick">رشد وزنه‌ها</p><h1 class="ttl">آمار</h1></header>
+ ${n?`<div class="tiles"><div class="tile"><b>${fa(n)}</b><small>کل تمرین‌ها</small></div><div class="tile"><b>${fa(wk)}</b><small>۷ روز اخیر</small></div><div class="tile"><b>${vfmt(tv)}</b><small>کل وزنه‌ی جابه‌جا شده</small></div></div>
+ <h4 class="h4">حرکت‌ها</h4>${L.map(o=>{const t=histFor(o.name).map(x=>top(x.e)),best=Math.max(...t),d=t[t.length-1]-t[0];return`<button class="srow" data-do="openEx" data-name="${esc(o.name)}"><div class="m"><b>${esc(o.name)}</b><small>رکورد ${wtxt(best)}${d>0?` · <span class="up">رشد ${signed(d)} کیلو</span>`:''} · ${fa(t.length)} جلسه</small></div>${spark(t)}</button>`}).join('')}`
+ :`<div class="empty">${plate}<h2>هنوز آماری نیست</h2><p class="mute">بعد از اولین تمرین، نمودار رشد وزنه‌ی هر حرکت اینجا ساخته می‌شه.</p></div>`}`}
+
+function vEx(name){const h=histFor(name);if(!h.length){sub=null;return vStats()}const tops=h.map(x=>top(x.e)),best=Math.max(...tops),d=best-tops[0],ph=findPhoto(name);
+ let run=0;const flags=h.map(x=>{const t=top(x.e),pr=run>0&&t>run;run=Math.max(run,t);return pr});
+ return `<div class="bar"><button class="ib" data-do="back">${I.back}<span>آمار</span></button></div>
+ <div class="hero">${ph?`<div class="th"><img data-pid="${ph}" alt=""></div>`:''}<div><h1 class="ttl">${esc(h[h.length-1].e.name)}</h1><p class="sub">${fa(h.length)} جلسه · از ${dFmt.format(h[0].s.start)}</p></div></div>
+ <div class="tiles"><div class="tile"><b>${fa(best)}</b><small>رکورد وزنه (کیلو)</small></div><div class="tile"><b class="${d>0?'up':''}">${signed(d)}</b><small>رشد از شروع${tops[0]>0&&d>0?' · '+fa(Math.round(d/tops[0]*100))+'٪':''}</small></div><div class="tile"><b>${fa(Math.round(Math.max(...h.map(x=>e1(x.e)))))}</b><small>۱RM تخمینی (کیلو)</small></div></div>
+ <div class="seg4">${Object.entries(MET).map(([k,m])=>`<button class="${k===metric?'on':''}" data-do="metric" data-id="${k}">${m[0]}</button>`).join('')}</div>
+ <div class="fig" id="chart"></div>
+ <h4 class="h4">جلسه‌ها</h4>
+ ${h.map((x,i)=>({x,pr:flags[i]})).reverse().map(({x,pr})=>`<div class="sess"><header><span>${dFmt.format(x.s.start)}</span>${pr?'<span class="pr">رکورد جدید</span>':''}</header><div class="setl">${x.e.sets.map(s=>`<span>${wshort(s.w)}×${fa(s.r)}</span>`).join('')}</div><small class="mute">حجم ${vfmt(vol(x.e))} · ۱RM تخمینی ${fa(Math.round(e1(x.e)))} کیلو</small></div>`).join('')}`}
+
+function vBody(){const L=bodySorted();const used=BM.filter(b=>L.some(x=>x.m[b[0]]>0));if(!used.some(b=>b[0]===bmetric)&&used.length)bmetric=used[0][0];
+ const latest=k=>{for(let i=L.length-1;i>=0;i--)if(L[i].m[k]>0)return L[i].m[k];return 0},first=k=>{const x=L.find(b=>b.m[k]>0);return x?x.m[k]:0};
+ const series=L.filter(b=>b.m[bmetric]>0);
+ return `<header class="hd"><p class="kick">وزن و سایزها</p><h1 class="ttl">بدن</h1></header>
+ ${L.length?`<div class="bm">${used.map(([k,n,u])=>{const v=latest(k),d=v-first(k);return`<button class="bmi ${k===bmetric?'on':''}" data-do="bmetric" data-id="${k}"><small>${n}</small><b>${fa(v)}</b><i>${u}</i>${d?`<em class="${(k==='weight'||k==='fat'||k==='waist'||k==='belly')?(d<0?'up':'dn'):(d>0?'up':'dn')}">${signed(d)}</em>`:''}</button>`}).join('')}</div>
+ <p class="kick" style="margin-bottom:6px">روند ${BMk[bmetric][1]} (${BMk[bmetric][2]}) · ${fa(series.length)} ثبت</p>
+ <div class="fig" id="chart"></div>
+ <button class="big" style="margin-top:14px" data-do="bodyAdd">${I.plus} ثبت اندازه‌های امروز</button>
+ <h4 class="h4">ثبت‌ها</h4>
+ ${[...L].reverse().map(b=>`<button class="srow" data-do="bodyEdit" data-id="${b.id}"><div class="dt"><b>${dDay.format(b.t)}</b><small>${dMon.format(b.t)}</small></div><div class="m"><b>${b.m.weight>0?fa(b.m.weight)+' کیلو':'اندازه‌ها'}</b><small>${BM.filter(x=>x[0]!=='weight'&&b.m[x[0]]>0).map(x=>x[1]+' '+fa(b.m[x[0]])).join(' · ')||'—'}</small></div>${b.photoId?`<img class="bphoto" data-pid="${b.photoId}" alt="">`:''}</button>`).join('')}`
+ :`<div class="empty">${plate}<h2>وزن و سایزهات رو ثبت کن</h2><p class="mute">هفته‌ای یک بار، صبح ناشتا. هر چی رو خواستی پر کن؛ بقیه رو خالی بذار.</p><div class="menu"><button class="big" data-do="bodyAdd">${I.plus} اولین ثبت</button></div></div>`}`}
+
+function vSettings(){const st=S.settings,sw=k=>`<button class="sw ${st[k]?'on':''}" data-do="toggle" data-id="${k}" role="switch" aria-checked="${!!st[k]}"><i></i></button>`;
+ return `<header class="hd"><p class="kick">دفتر تمرین</p><h1 class="ttl">تنظیمات</h1></header>
+ <div class="sec"><h4>گام کم و زیاد کردن وزنه</h4><div class="chips">${[1,1.25,2.5,5].map(v=>`<button class="chip ${st.step===v?'on':''}" data-do="setStep" data-id="${v}">${fa(v)} کیلو</button>`).join('')}</div></div>
+ <div class="sec"><h4>صدا و صفحه</h4>
+ <div class="li first"><div><b>بوق پایان استراحت</b><small>سه بوق کوتاه در ۳ ثانیه‌ی آخر و یک بوق بلند در پایان</small></div>${sw('sound')}</div>
+ <div class="li"><div><b>بوق حتی در حالت سایلنت</b><small>روشن باشه، صدا حتی با کلید سایلنت پخش می‌شه، ولی آهنگی که گوش می‌دی ممکنه موقع بوق قطع بشه</small></div>${sw('loud')}</div>
+ <div class="li"><div><b>صفحه حین تمرین خاموش نشه</b><small>وقتی صفحه قفل بشه، آیفون نمی‌ذاره بوق پخش بشه</small></div>${sw('wake')}</div>
+ <div class="li"><div><b>امتحان صدا</b><small>صدای گوشی رو بالا ببر و امتحان کن</small></div><button class="btn sm" data-do="testSound">پخش بوق</button></div></div>
+ <div class="sec"><h4>پشتیبان‌گیری</h4><p class="mute sm" style="margin:0 0 4px">همه‌چیز فقط روی همین گوشی ذخیره می‌شه. هر چند وقت یک بار فایل پشتیبان بگیر و یه جای امن نگهش دار (Files، تلگرام، ایمیل).</p><div class="row2"><button class="btn primary" data-do="export">گرفتن پشتیبان</button><label class="btn ghost">بازیابی از فایل<input type="file" id="imp" accept=".json,application/json" hidden></label></div></div>
+ <div class="sec"><h4>نصب روی آیفون</h4><ol class="steps"><li>این صفحه رو در <b>Safari</b> باز کن.</li><li>دکمه‌ی اشتراک‌گذاری (مربع با فلش رو به بالا) رو بزن.</li><li>گزینه‌ی <b>Add to Home Screen</b> رو انتخاب کن.</li></ol></div>
+ <div class="sec"><div class="li first"><div><b>پاک کردن همه‌ی داده‌ها</b><small>برنامه‌ها، تاریخچه، اندازه‌ها و عکس‌ها</small></div><button class="btn sm danger" data-do="wipe">پاک کن</button></div></div>
+ ${db?'':'<p class="warn">ذخیره‌سازی در این مرورگر در دسترس نیست؛ داده‌ها با بستن صفحه پاک می‌شن.</p>'}`}
+
+/* ---------- sheets ---------- */
+function nameSheet(title,val,cb){openSheet(`<h3>${esc(title)}</h3><label class="fld"><span>نام برنامه</span><input id="nm" value="${esc(val)}" placeholder="مثلاً روز ۱: سینه و پشت بازو" maxlength="60" autocomplete="off"></label><div class="row2"><button class="btn ghost" id="nmc">انصراف</button><button class="btn primary" id="nms">ذخیره</button></div>`,p=>{const i=$('#nm',p);setTimeout(()=>i.focus(),280);$('#nmc',p).onclick=closeSheet;const go=()=>{const v=i.value.trim();if(!v)return i.focus();closeSheet();cb(v)};$('#nms',p).onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go()}})}
+
+function photoBox(p,state,label){const box=$('#ph',p);const draw=async()=>{const has=state.blob||(state.id&&!state.removed);box.innerHTML=has?`<div class="phw"><img id="phimg" alt=""><div class="pha"><label class="btn sm">تغییر عکس<input type="file" accept="image/*" hidden class="phf"></label><button class="btn sm ghost danger-t" type="button" id="phrm">حذف عکس</button></div></div>`:`<label class="upl">${I.cam}<span>${label}</span><input type="file" accept="image/*" hidden class="phf"></label>`;
+ if(has){const img=$('#phimg',box);if(state.blob){state.url&&URL.revokeObjectURL(state.url);state.url=URL.createObjectURL(state.blob);img.src=state.url}else photoURL(state.id).then(u=>{if(u)img.src=u});$('#phrm',box).onclick=()=>{state.blob=null;state.removed=true;draw()}}
+ $('.phf',box).onchange=async e=>{const f=e.target.files[0];if(!f)return;state.blob=await shrink(f);state.removed=false;draw()}};draw()}
+async function commitPhoto(state,oldId){if(state.blob){const nid=uid();await photoSet(nid,state.blob);if(oldId)await photoDel(oldId);return nid}if(state.removed){if(oldId)await photoDel(oldId);return null}return oldId||null}
+
+function exSheet(planId,exId){const p=S.plans.find(x=>x.id===planId);if(!p)return;const e=exId?p.exercises.find(x=>x.id===exId):{name:'',sets:3,reps:10,weight:0,rest:90,note:''};if(!e)return;
+ const st={id:e.photoId||null,blob:null,removed:false},names=[...new Set([...allNames(),...PRESETS])];
+ openSheet(`<h3>${exId?'ویرایش حرکت':'حرکت جدید'}</h3><div id="ph"></div>
+ <label class="fld"><span>نام حرکت</span><input id="f-name" list="exn" value="${esc(e.name)}" placeholder="مثلاً پرس سینه هالتر" autocomplete="off"></label><datalist id="exn">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+ <div class="g3"><label class="fld"><span>تعداد ست</span><input class="num" id="f-sets" inputmode="numeric" value="${e.sets}"></label><label class="fld"><span>تکرار</span><input class="num" id="f-reps" inputmode="numeric" value="${e.reps}"></label><label class="fld"><span>وزنه (کیلو)</span><input class="num" id="f-w" inputmode="decimal" value="${e.weight}"></label></div>
+ <div class="fld"><span>استراحت بین ست‌ها</span><div class="chips" id="restc">${[30,45,60,90,120,180].map(s=>`<button type="button" class="chip ${e.rest===s?'on':''}" data-rest="${s}">${mmss(s)}</button>`).join('')}</div><div class="restin"><input class="num" id="f-rest" inputmode="numeric" value="${e.rest}" aria-label="استراحت به ثانیه"><span>ثانیه</span></div></div>
+ <label class="fld"><span>ملاحظات و نکات فنی (اختیاری)</span><textarea id="f-note" rows="5" placeholder="مثلاً: در پایین‌ترین نقطه کمر از صندلی جدا نشه؛ دامنه رو کوتاه‌تر کن">${esc(e.note||'')}</textarea></label>
+ <p class="mute sm" style="margin:-4px 0 4px">وزنه صفر یعنی حرکت با وزن بدن.</p>
+ <div class="row2">${exId?'<button class="btn ghost danger-t" id="f-del">حذف حرکت</button>':'<button class="btn ghost" id="f-cancel">انصراف</button>'}<button class="btn primary" id="f-save">ذخیره</button></div>`,P=>{
+  photoBox(P,st,'عکس خودت در این حرکت (اختیاری)');
+  $('#restc',P).onclick=ev=>{const b=ev.target.closest('[data-rest]');if(!b)return;$('#f-rest',P).value=b.dataset.rest;$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',c===b))};
+  $('#f-rest',P).oninput=ev=>{const v=Math.round(num(ev.target.value));$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',+c.dataset.rest===v))};
+  if(!exId){$('#f-cancel',P).onclick=closeSheet;setTimeout(()=>$('#f-name',P).focus(),280)}
+  else $('#f-del',P).onclick=async()=>{if(await ask('حرکت «'+e.name+'» از برنامه حذف بشه؟','حذف کن')){p.exercises=p.exercises.filter(x=>x!==e);photoDel(e.photoId);save();render()}};
+  $('#f-save',P).onclick=async()=>{const name=$('#f-name',P).value.trim();if(!name){$('#f-name',P).focus();return toast('اسم حرکت رو بنویس')}
+   const o={name,sets:Math.max(1,Math.round(num($('#f-sets',P).value))||1),reps:Math.max(0,Math.round(num($('#f-reps',P).value))),weight:Math.max(0,num($('#f-w',P).value)),rest:Math.max(0,Math.round(num($('#f-rest',P).value))),note:$('#f-note',P).value.trim()};
+   o.photoId=await commitPhoto(st,e.photoId);if(exId)Object.assign(e,o);else p.exercises.push({id:uid(),...o});save();closeSheet();render()}})}
+
+function planMenu(id){const p=S.plans.find(x=>x.id===id);if(!p)return;openSheet(`<h3>${esc(p.name)}</h3><div class="menu"><button class="btn" id="m1">تغییر نام</button><button class="btn" id="m2">ساخت کپی از این برنامه</button><button class="btn ghost danger-t" id="m3">حذف برنامه</button><button class="btn ghost" id="m4">بستن</button></div>`,q=>{
+ $('#m1',q).onclick=()=>nameSheet('تغییر نام',p.name,n=>{p.name=n;save();render()});
+ $('#m2',q).onclick=async()=>{const np={id:uid(),name:p.name+' (کپی)',exercises:[]};for(const e of p.exercises){const ne={...e,id:uid(),photoId:null};if(e.photoId){const b=await photoGet(e.photoId);if(b){ne.photoId=uid();await photoSet(ne.photoId,b)}}np.exercises.push(ne)}S.plans.push(np);save();closeSheet();nav('plans',{plan:np.id})};
+ $('#m3',q).onclick=async()=>{if(await ask('برنامه‌ی «'+p.name+'» حذف بشه؟ تاریخچه و آمار تمرین‌ها می‌مونه.','حذف کن')){for(const e of p.exercises)photoDel(e.photoId);S.plans=S.plans.filter(x=>x!==p);save();nav('plans')}};
+ $('#m4',q).onclick=closeSheet})}
+
+function sessSheet(id){const s=S.sessions.find(x=>x.id===id);if(!s)return;const v=s.entries.reduce((a,e)=>a+vol(e),0),n=s.entries.reduce((a,e)=>a+e.sets.length,0);
+ openSheet(`<p class="kick">${wd.format(s.start)} · ${dFmt.format(s.start)}</p><h3>${esc(s.planName)}</h3><div class="tiles"><div class="tile"><b>${dur(s.end-s.start)}</b><small>مدت</small></div><div class="tile"><b>${fa(n)}</b><small>ست</small></div><div class="tile"><b>${vfmt(v)}</b><small>حجم کل</small></div></div>
+ ${s.entries.map(e=>`<div class="sess"><header><b>${esc(e.name)}</b><span class="mute">${wtxt(top(e))}</span></header><div class="setl">${e.sets.map(x=>`<span>${wshort(x.w)}×${fa(x.r)}</span>`).join('')}</div></div>`).join('')}
+ <div class="row2"><button class="btn ghost danger-t" id="sdel">حذف این تمرین</button><button class="btn primary" id="sok">بستن</button></div>`,p=>{$('#sok',p).onclick=closeSheet;$('#sdel',p).onclick=async()=>{if(await ask('این تمرین از تاریخچه و آمار حذف بشه؟','حذف کن')){S.sessions=S.sessions.filter(x=>x!==s);save();render()}}})}
+
+function bodySheet(id){const L=bodySorted(),b=id?S.body.find(x=>x.id===id):null,prev=L.length?L[L.length-1].m:{},st={id:b&&b.photoId||null,blob:null,removed:false};
+ openSheet(`<h3>${b?'ویرایش ثبت '+dFmt.format(b.t):'اندازه‌های امروز'}</h3>
+ <div class="g2">${BM.map(([k,n,u])=>`<label class="fld"><span>${n} (${u})</span><input class="num" data-bm="${k}" inputmode="decimal" value="${b&&b.m[k]>0?b.m[k]:''}" placeholder="${!b&&prev[k]>0?fa(prev[k]):''}"></label>`).join('')}</div>
+ <p class="mute sm" style="margin:-4px 0 10px">${b?'':'عددهای کم‌رنگ، اندازه‌های دفعه‌ی قبله. '}فقط هر کدوم رو که اندازه گرفتی پر کن. بازو و ران رو همیشه از یک سمت بگیر.</p>
+ <div id="ph"></div>
+ <div class="row2">${b?'<button class="btn ghost danger-t" id="bdel">حذف</button>':'<button class="btn ghost" id="bc">انصراف</button>'}<button class="btn primary" id="bs">ذخیره</button></div>`,P=>{
+  photoBox(P,st,'عکس فرم بدن (اختیاری)');
+  if(b)$('#bdel',P).onclick=async()=>{if(await ask('این ثبت حذف بشه؟','حذف کن')){photoDel(b.photoId);S.body=S.body.filter(x=>x!==b);save();render()}};else $('#bc',P).onclick=closeSheet;
+  $('#bs',P).onclick=async()=>{const m={};for(const i of $$('[data-bm]',P)){const v=num(i.value);if(v>0)m[i.dataset.bm]=v}if(!Object.keys(m).length&&!st.blob)return toast('حداقل یکی از اندازه‌ها رو وارد کن');
+   const photoId=await commitPhoto(st,b&&b.photoId);if(b){b.m=m;b.photoId=photoId}else{S.body.push({id:uid(),t:Date.now(),m,photoId});if(!m[bmetric])bmetric=m.weight?'weight':Object.keys(m)[0]||bmetric}save();closeSheet();render()}})}
+
+/* ---------- workout ---------- */
+const cx=()=>W.ex[W.idx];
+function prefill(ex){const L=W.log[ex.id]||[];if(L.length){const l=L[L.length-1];return{w:l.w,r:l.r}}const h=histFor(ex.name);if(h.length){const s0=h[h.length-1].e.sets[0];return{w:Math.max(s0.w,ex.weight||0),r:ex.reps||s0.r}}return{w:ex.weight||0,r:ex.reps||10}}
+const cur=()=>{const ex=cx();return W.cur[ex.id]||(W.cur[ex.id]=prefill(ex))};
+function suggest(ex,lastE){if(!lastE||!ex.reps)return 0;const s=lastE.sets.slice(0,ex.sets);if(s.length<ex.sets||!s.every(x=>x.r>=ex.reps))return 0;const t=top(lastE);return t>0?Math.round((t+S.settings.step)*100)/100:0}
+function nextUnf(){const n=W.ex.length;for(let k=1;k<=n;k++){const i=(W.idx+k)%n,e=W.ex[i];if((W.log[e.id]||[]).length<e.sets)return i}return -1}
+const allDone=()=>W.ex.every(e=>(W.log[e.id]||[]).length>=e.sets);
+
+function renderWk(){const ex=cx(),L=W.log[ex.id]||[],c=cur(),setNo=L.length+1,extra=setNo>ex.sets,h=histFor(ex.name),lastE=h.length?h[h.length-1].e:null,sug=suggest(ex,lastE);
+ $('#wk').innerHTML=`<div class="wtop"><button class="ib" data-do="wkMin">${I.down}<span>کوچک کن</span></button><div class="clock" id="wclock" dir="ltr">${clk(Date.now()-W.start)}</div><button class="ib red-t" data-do="wkFinish">پایان تمرین</button></div>
+ <div class="segs">${W.ex.map((e,i)=>{const n=(W.log[e.id]||[]).length;return`<button class="seg ${i===W.idx?'cur':''} ${n>=e.sets?'done':n?'part':''}" data-do="goEx" data-id="${i}" aria-label="${esc(e.name)}"></button>`}).join('')}</div>
+ <div class="wcard"><div class="wph ${ex.photoId?'':'np'}">${ex.photoId?`<img data-pid="${ex.photoId}" alt="">`:plate}</div>
+ <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${fa(ex.sets)}×${fa(ex.reps)}</p><h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
+ <div class="sets">${Array.from({length:Math.max(ex.sets,L.length)},(_,i)=>{const s=L[i];return`<div class="st ${s?'ok':i===L.length?'now':''}"><small>ست ${fa(i+1)}</small><b>${s?wshort(s.w)+'×'+fa(s.r):'—'}</b></div>`}).join('')}${extra?`<div class="st now"><small>ست ${fa(setNo)}</small><b>اضافه</b></div>`:''}</div></div>
+ <div class="stp2"><div class="stp"><span class="lab">وزنه · کیلو</span><div class="ctl"><input id="wW" inputmode="decimal" value="${c.w}" aria-label="وزنه"><button class="pm" data-do="wInc" aria-label="بیشتر">+</button><button class="pm" data-do="wDec" aria-label="کمتر">−</button></div></div>
+ <div class="stp"><span class="lab">تکرار</span><div class="ctl"><input id="wR" inputmode="numeric" value="${c.r}" aria-label="تکرار"><button class="pm" data-do="rInc" aria-label="بیشتر">+</button><button class="pm" data-do="rDec" aria-label="کمتر">−</button></div></div></div>
+ <div class="hint"><span>${lastE?'دفعه‌ی قبل: '+lastE.sets.map(s=>wshort(s.w)+'×'+fa(s.r)).join('  ·  '):'اولین باره این حرکت رو ثبت می‌کنی'}</span>${sug&&sug>c.w?`<button class="chip grow" data-do="applySug" data-id="${sug}">پیشنهاد: ${fa(sug)} کیلو</button>`:''}</div>
+ <button class="big" data-do="setDone">${I.check} ست ${fa(setNo)}${extra?' (اضافه)':''} تموم شد</button>
+ <div class="wnav"><button class="btn ghost sm ${W.idx?'':'dim'}" data-do="prevEx">${I.back} قبلی</button>${L.length?'<button class="btn ghost sm" data-do="undo">حذف ست آخر</button>':'<span></span>'}<button class="btn ghost sm ${W.idx<W.ex.length-1?'':'dim'}" data-do="nextEx">بعدی ${I.fwd}</button></div>
+ ${allDone()?`<div class="alld"><b>همه‌ی حرکت‌ها تموم شد. خسته نباشی!</b><button class="big" data-do="wkFinish">ثبت و پایان تمرین</button></div>`:''}`;
+ hydrate($('#wk'))}
+
+function startWorkout(id){const go=()=>{unlock();if(!W||W.planId!==id){const p=S.plans.find(x=>x.id===id);if(!p||!p.exercises.length)return;W={planId:id,planName:p.name,start:Date.now(),idx:0,ex:p.exercises.map(e=>({...e})),log:{},cur:{},rest:null};saveW()}openWk()};
+ if(W&&W.planId!==id){const has=Object.values(W.log).some(l=>l.length);if(has){ask('تمرین «'+W.planName+'» نیمه‌کاره‌ست و ذخیره نشده. کنارش بذارم و تمرین جدید شروع کنم؟','شروع جدید').then(ok=>{if(ok){W=null;go()}});return}W=null}go()}
+function openWk(){if(!W)return;$('#wk').hidden=false;document.body.classList.add('lock');renderWk();$('#wk').scrollTop=0;if(W.rest&&W.rest.end>Date.now()){showRest();scheduleRest()}else if(W.rest){W.rest=null;saveW()}wake()}
+function closeWk(){$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
+function endWk(){cancelSched();W=null;kvSet('active',null).catch(()=>{});$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
+function setDone(){unlock();const ex=cx(),c=cur();c.w=Math.max(0,num($('#wW').value));c.r=Math.max(0,Math.round(num($('#wR').value)));if(!(c.r>0))return toast('تعداد تکرار رو وارد کن');
+ (W.log[ex.id]=W.log[ex.id]||[]).push({w:c.w,r:c.r,t:Date.now()});const L=W.log[ex.id];let nx;
+ if(L.length>=ex.sets){const ni=nextUnf();if(ni===-1){saveW();renderWk();$('#wk').scrollTo({top:1e5,behavior:'smooth'});return toast('آفرین! همه‌ی ست‌ها انجام شد')}W.idx=ni;const ne=W.ex[ni],nc=W.cur[ne.id]||(W.cur[ne.id]=prefill(ne));nx='بعدی: '+ne.name+' · ست '+fa((W.log[ne.id]||[]).length+1)+' · '+wtxt(nc.w)+' × '+fa(nc.r)}
+ else nx='بعدی: ست '+fa(L.length+1)+' از '+fa(ex.sets)+' · '+wtxt(c.w)+' × '+fa(c.r);
+ renderWk();$('#wk').scrollTop=0;if(ex.rest>0){W.rest={end:Date.now()+ex.rest*1000,total:ex.rest,next:nx};showRest();scheduleRest()}saveW()}
+function showRest(){const el=$('#rest');el.classList.remove('go');el.innerHTML=`<div class="rin"><p class="kick">استراحت</p><div class="ring"><svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="112" class="trk"/><circle cx="130" cy="130" r="112" class="prg" id="rprg"/></svg><div class="rt" id="rtime"></div></div><div class="row2"><button class="btn ghost" data-do="restAdj" data-id="-15">−۱۵ ثانیه</button><button class="btn ghost" data-do="restAdj" data-id="15">+۱۵ ثانیه</button></div><button class="big" style="margin-top:12px" data-do="skipRest">رد کردن استراحت</button><p class="nx">${esc(W.rest.next)}</p></div>`;el.hidden=false;lastTick=null;tickRest()}
+function tickRest(){if(!W||!W.rest)return;const rem=(W.rest.end-Date.now())/1000,t=$('#rtime'),p=$('#rprg');if(t)t.textContent=mmss(rem);if(p)p.style.strokeDashoffset=(703.7*(1-Math.max(0,rem)/W.rest.total)).toFixed(1);
+ const sec=Math.ceil(rem);if(!schedOK&&sec<=3&&sec>0&&sec!==lastTick){lastTick=sec;beep('tick')}if(rem<=0)restDone()}
+function restDone(){const late=Date.now()-W.rest.end;W.rest=null;saveW();if(!schedOK&&late<4000)beep('end');sched=[];schedOK=false;try{navigator.vibrate&&navigator.vibrate([250,120,250])}catch(e){}
+ const el=$('#rest');if($('#wk').hidden){el.hidden=true;return toast('استراحت تموم شد؛ وقت ست بعدیه')}el.classList.add('go');el.innerHTML='<div class="rin"><p class="gohead">وقت ست بعدیه!</p></div>';el.hidden=false;setTimeout(()=>{if(!W||!W.rest){el.hidden=true;el.classList.remove('go')}},1400)}
+async function finishWk(){const entries=W.ex.map(e=>({exId:e.id,name:e.name,sets:(W.log[e.id]||[]).map(s=>({w:s.w,r:s.r}))})).filter(e=>e.sets.length);
+ if(!entries.length){if(await ask('هنوز هیچ ستی ثبت نکردی. تمرین بدون ذخیره بسته بشه؟','ببند'))endWk();return}
+ if(!allDone()&&!await ask('چند ست هنوز مونده. تمرین همین‌جا تموم و ذخیره بشه؟','تموم و ذخیره کن',false))return;
+ const prs=entries.filter(e=>{const h=histFor(e.name);return h.length&&top(e)>Math.max(...h.map(x=>top(x.e)))});
+ const s={id:uid(),planId:W.planId,planName:W.planName,start:W.start,end:Date.now(),entries};S.sessions.push(s);save();endWk();
+ const v=entries.reduce((a,e)=>a+vol(e),0),n=entries.reduce((a,e)=>a+e.sets.length,0);
+ openSheet(`<div style="text-align:center">${plate}</div><h3 style="text-align:center">تمرین ثبت شد</h3><div class="tiles"><div class="tile"><b>${dur(s.end-s.start)}</b><small>مدت</small></div><div class="tile"><b>${fa(n)}</b><small>ست</small></div><div class="tile"><b>${vfmt(v)}</b><small>حجم کل</small></div></div>${prs.length?`<h4 class="h4">رکوردهای جدید</h4>${prs.map(e=>`<div class="sess"><header><b>${esc(e.name)}</b><span class="pr">${fa(top(e))} کیلو</span></header></div>`).join('')}`:''}<button class="big" id="sok" style="margin-top:10px">عالیه</button>`,p=>{$('#sok',p).onclick=closeSheet})}
+
+/* ---------- actions ---------- */
+function adj(k,d){const c=cur();if(k==='w'){c.w=Math.max(0,Math.round((num($('#wW').value)+d)*100)/100);$('#wW').value=c.w}else{c.r=Math.max(0,Math.round(num($('#wR').value))+d);$('#wR').value=c.r}saveW()}
+function mv(id,d){const p=curPlan();if(!p)return;const i=p.exercises.findIndex(e=>e.id===id),j=i+d;if(i<0||j<0||j>=p.exercises.length)return;[p.exercises[i],p.exercises[j]]=[p.exercises[j],p.exercises[i]];save();render()}
+async function exportData(){try{const photos={},ids=new Set();for(const p of S.plans)for(const e of p.exercises)e.photoId&&ids.add(e.photoId);for(const b of S.body)b.photoId&&ids.add(b.photoId);for(const id of ids){const b=await photoGet(id);if(b)photos[id]=await b2d(b)}
+ const name='gym-backup-'+new Date().toISOString().slice(0,10)+'.json',json=JSON.stringify({app:'gymlog',v:1,at:Date.now(),state:S,photos}),file=new File([json],name,{type:'application/json'});
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('فایل پشتیبان آماده شد')}catch(e){toast('گرفتن پشتیبان ممکن نشد')}}
+async function importData(f){try{const d=JSON.parse(await f.text());if(d.app!=='gymlog'||!d.state||!Array.isArray(d.state.plans))throw 0;if(!await ask('همه‌ی داده‌های فعلی با فایل پشتیبان جایگزین بشه؟','جایگزین کن'))return;
+ if(db)await tx('photos','readwrite',s=>s.clear());memPhotos.clear();urlC.clear();for(const[id,u]of Object.entries(d.photos||{}))await photoSet(id,d2b(u));
+ S={plans:d.state.plans||[],sessions:d.state.sessions||[],body:d.state.body||[],settings:{...DEF,...(d.state.settings||{})}};await kvSet('state',S);nav('plans');toast('بازیابی انجام شد')}catch(e){toast('این فایل پشتیبان معتبر نیست')}}
+const ACT={
+tab:(_,t)=>nav(t.dataset.tab),back:()=>nav(tab),
+newPlan:()=>nameSheet('برنامه‌ی جدید','',n=>{const p={id:uid(),name:n,exercises:[]};S.plans.push(p);save();nav('plans',{plan:p.id});setTimeout(()=>exSheet(p.id,null),300)}),
+samplePlan:()=>{const mk=(name,sets,reps,weight,rest)=>({id:uid(),name,sets,reps,weight,rest,note:'',photoId:null});S.plans.push({id:uid(),name:'سینه و پشت بازو (نمونه)',exercises:[mk('پرس سینه هالتر',4,10,40,90),mk('پرس بالا سینه دمبل',3,12,14,75),mk('قفسه سینه دمبل',3,12,10,60),mk('پشت بازو سیمکش',3,12,20,60),mk('دیپ پارالل',3,10,0,90)]});save();render()},
+openPlan:id=>nav('plans',{plan:id}),start:id=>startWorkout(id),resume:()=>{unlock();openWk()},
+addEx:()=>exSheet(sub.plan,null),editEx:id=>exSheet(sub.plan,id),mvUp:id=>mv(id,-1),mvDown:id=>mv(id,1),planMenu:id=>planMenu(id),
+openSession:id=>sessSheet(id),openEx:(_,t)=>nav('stats',{ex:t.dataset.name}),metric:id=>{metric=id;render()},
+bmetric:id=>{bmetric=id;render()},bodyAdd:()=>bodySheet(null),bodyEdit:id=>bodySheet(id),
+setStep:id=>{S.settings.step=+id;save();render()},toggle:id=>{S.settings[id]=!S.settings[id];save();render();if(id==='loud'||id==='sound')unlock()},
+testSound:()=>{unlock();setTimeout(()=>beep('end'),60)},export:()=>exportData(),
+wipe:async()=>{if(!await ask('همه‌ی برنامه‌ها، تاریخچه، اندازه‌ها و عکس‌ها برای همیشه پاک بشه؟','همه رو پاک کن'))return;if(db)await tx('photos','readwrite',s=>s.clear()).catch(()=>{});memPhotos.clear();S={plans:[],sessions:[],body:[],settings:S.settings};W=null;kvSet('active',null).catch(()=>{});save();nav('plans');toast('همه‌ی داده‌ها پاک شد')},
+wkMin:()=>closeWk(),wkFinish:()=>finishWk(),
+wDec:()=>adj('w',-S.settings.step),wInc:()=>adj('w',S.settings.step),rDec:()=>adj('r',-1),rInc:()=>adj('r',1),
+applySug:id=>{const c=cur();c.w=+id;$('#wW').value=c.w;saveW();renderWk()},
+setDone:()=>setDone(),noteToggle:(_,t)=>t.classList.toggle('open'),
+undo:()=>{const ex=cx(),L=W.log[ex.id];if(L&&L.length){const l=L.pop();W.cur[ex.id]={w:l.w,r:l.r};saveW();renderWk()}},
+prevEx:()=>{if(W.idx>0){W.idx--;saveW();renderWk()}},nextEx:()=>{if(W.idx<W.ex.length-1){W.idx++;saveW();renderWk()}},
+goEx:id=>{W.idx=+id;saveW();renderWk()},
+skipRest:()=>{cancelSched();W.rest=null;saveW();$('#rest').hidden=true},
+restAdj:id=>{if(!W.rest)return;unlock();W.rest.end=Math.max(Date.now()+1000,W.rest.end+id*1000);W.rest.total=Math.max(W.rest.total,(W.rest.end-Date.now())/1000);lastTick=null;saveW();scheduleRest();tickRest()}
+};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-do]');if(!t)return;const f=ACT[t.dataset.do];if(f){e.preventDefault();f(t.dataset.id,t)}});
+document.addEventListener('input',e=>{if(!W)return;const id=e.target.id;if(id==='wW'||id==='wR'){const c=cur();if(id==='wW')c.w=Math.max(0,num(e.target.value));else c.r=Math.max(0,Math.round(num(e.target.value)));saveW()}});
+document.addEventListener('change',e=>{if(e.target.id==='imp'){const f=e.target.files[0];e.target.value='';if(f)importData(f)}});
+document.addEventListener('focusin',e=>{if(e.target.matches('.ctl input,.num'))setTimeout(()=>{try{e.target.select()}catch(_){}},0)});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){clearTimeout(saveT);kvSet('state',S).catch(()=>{});if(W)saveW()}else if(W){if(!$('#wk').hidden)wake();if(W.rest){if(W.rest.end>Date.now())scheduleRest();else cancelSched()}tickRest()}});
+setInterval(()=>{if(!W)return;if(!$('#wk').hidden){const c=$('#wclock');if(c)c.textContent=clk(Date.now()-W.start)}if(W.rest)tickRest()},250);
+
+(async()=>{try{db=await idb()}catch(e){db=null}
+ try{const s=await kvGet('state');if(s)S={...S,...s,settings:{...DEF,...(s.settings||{})}};S.body=S.body||[]}catch(e){}
+ try{W=await kvGet('active');if(W&&W.rest&&W.rest.end<Date.now())W.rest=null}catch(e){W=null}
+ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+ render();
+ try{if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}})();
+}
+</script>
+</body>
+</html>
