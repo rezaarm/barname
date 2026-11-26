@@ -97,7 +97,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue)}
 .seg{flex:1;height:24px;border:0;padding:0;--c:var(--card2);background:linear-gradient(var(--c),var(--c)) center/100% 6px no-repeat;border-radius:4px}
 .seg.part{--c:#e88f92}.seg.done{--c:var(--red)}.seg.cur{background-size:100% 12px;--c:var(--ink)}.seg.cur.done{--c:var(--red)}
 .wcard{background:var(--card);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);padding-bottom:14px}
-.wph{height:min(30vh,250px);background:var(--card2);display:grid;place-items:center}
+.wph{aspect-ratio:16/9;max-height:42vh;background:var(--card2);display:grid;place-items:center}
 .wph.np{height:130px}.wph.np .plate{width:90px;height:90px}.wph img{width:100%;height:100%;object-fit:cover;display:block}
 .plate{width:120px;height:120px}
 .wcard .kick{padding:14px 16px 0}
@@ -174,6 +174,13 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue)}
 .bmi b{font-size:22px;font-weight:850;white-space:nowrap}.bmi i{font-style:normal;font-size:12px;color:var(--mute);margin-inline-start:3px}
 .bmi em{font-style:normal;font-size:12px;font-weight:800;margin-inline-start:6px}
 .bphoto{width:44px;height:44px;border-radius:10px;object-fit:cover;flex:none}
+img.zm{cursor:zoom-in}
+#zoom{position:fixed;inset:0;z-index:95;background:#000;display:grid;place-items:center;overflow:hidden;touch-action:pinch-zoom}
+#zimg{max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain;transition:transform .2s}
+#zoom.rot #zimg{max-width:100vh;max-width:100dvh;max-height:100vw;transform:rotate(90deg)}
+.zb{position:absolute;border:0;background:rgba(255,255,255,.16);color:#fff;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:999px;min-width:46px;height:46px;font-size:16px;font-weight:700;padding:0 16px}
+.zx{top:calc(env(safe-area-inset-top) + 12px);left:14px;font-size:20px;padding:0}
+.zr{bottom:calc(env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%)}
 #toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;font-size:15px;opacity:0;transition:.2s;z-index:100;pointer-events:none;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -192,6 +199,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue)}
 <section id="wk" hidden></section>
 <div id="rest" hidden></div>
 <div id="sheet" hidden><div class="scrim"></div><div class="panel" id="panel"></div></div>
+<div id="zoom" hidden><img id="zimg" alt=""><button class="zb zx" data-do="zoomClose" aria-label="بستن">✕</button><button class="zb zr" data-do="zoomRot">چرخش</button></div>
 <div id="toast" role="status"></div>
 <script>
 {
@@ -248,7 +256,7 @@ async function photoDel(id){if(!id)return;memPhotos.delete(id);const u=urlC.get(
 const urlC=new Map();
 async function photoURL(id){if(urlC.has(id))return urlC.get(id);try{const b=await photoGet(id);if(!b)return null;const u=URL.createObjectURL(b);urlC.set(id,u);return u}catch(e){return null}}
 function hydrate(root){for(const img of $$('img[data-pid]',root))if(!img.src)photoURL(img.dataset.pid).then(u=>{if(u)img.src=u})}
-async function shrink(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});const sc=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',.82))}catch(e){return file}finally{URL.revokeObjectURL(url)}}
+async function shrink(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});const sc=Math.min(1,1800/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(b=>r(b||file),'image/jpeg',.86))}catch(e){return file}finally{URL.revokeObjectURL(url)}}
 const b2d=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
 const d2b=u=>{const i=u.indexOf(','),m=(u.slice(0,i).match(/:(.*?);/)||[])[1]||'image/jpeg',s=atob(u.slice(i+1)),a=new Uint8Array(s.length);for(let k=0;k<s.length;k++)a[k]=s.charCodeAt(k);return new Blob([a],{type:m})};
 
@@ -334,7 +342,7 @@ function vStats(){const L=exList(),n=S.sessions.length,wk=S.sessions.filter(s=>s
 function vEx(name){const h=histFor(name);if(!h.length){sub=null;return vStats()}const tops=h.map(x=>top(x.e)),best=Math.max(...tops),d=best-tops[0],ph=findPhoto(name);
  let run=0;const flags=h.map(x=>{const t=top(x.e),pr=run>0&&t>run;run=Math.max(run,t);return pr});
  return `<div class="bar"><button class="ib" data-do="back">${I.back}<span>آمار</span></button></div>
- <div class="hero">${ph?`<div class="th"><img data-pid="${ph}" alt=""></div>`:''}<div><h1 class="ttl">${esc(h[h.length-1].e.name)}</h1><p class="sub">${fa(h.length)} جلسه · از ${dFmt.format(h[0].s.start)}</p></div></div>
+ <div class="hero">${ph?`<div class="th"><img class="zm" data-pid="${ph}" alt=""></div>`:''}<div><h1 class="ttl">${esc(h[h.length-1].e.name)}</h1><p class="sub">${fa(h.length)} جلسه · از ${dFmt.format(h[0].s.start)}</p></div></div>
  <div class="tiles"><div class="tile"><b>${fa(best)}</b><small>رکورد وزنه (کیلو)</small></div><div class="tile"><b class="${d>0?'up':''}">${signed(d)}</b><small>رشد از شروع${tops[0]>0&&d>0?' · '+fa(Math.round(d/tops[0]*100))+'٪':''}</small></div><div class="tile"><b>${fa(Math.round(Math.max(...h.map(x=>e1(x.e)))))}</b><small>۱RM تخمینی (کیلو)</small></div></div>
  <div class="seg4">${Object.entries(MET).map(([k,m])=>`<button class="${k===metric?'on':''}" data-do="metric" data-id="${k}">${m[0]}</button>`).join('')}</div>
  <div class="fig" id="chart"></div>
@@ -369,7 +377,7 @@ function vSettings(){const st=S.settings,sw=k=>`<button class="sw ${st[k]?'on':'
 /* ---------- sheets ---------- */
 function nameSheet(title,val,cb){openSheet(`<h3>${esc(title)}</h3><label class="fld"><span>نام برنامه</span><input id="nm" value="${esc(val)}" placeholder="مثلاً روز ۱: سینه و پشت بازو" maxlength="60" autocomplete="off"></label><div class="row2"><button class="btn ghost" id="nmc">انصراف</button><button class="btn primary" id="nms">ذخیره</button></div>`,p=>{const i=$('#nm',p);setTimeout(()=>i.focus(),280);$('#nmc',p).onclick=closeSheet;const go=()=>{const v=i.value.trim();if(!v)return i.focus();closeSheet();cb(v)};$('#nms',p).onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go()}})}
 
-function photoBox(p,state,label){const box=$('#ph',p);const draw=async()=>{const has=state.blob||(state.id&&!state.removed);box.innerHTML=has?`<div class="phw"><img id="phimg" alt=""><div class="pha"><label class="btn sm">تغییر عکس<input type="file" accept="image/*" hidden class="phf"></label><button class="btn sm ghost danger-t" type="button" id="phrm">حذف عکس</button></div></div>`:`<label class="upl">${I.cam}<span>${label}</span><input type="file" accept="image/*" hidden class="phf"></label>`;
+function photoBox(p,state,label){const box=$('#ph',p);const draw=async()=>{const has=state.blob||(state.id&&!state.removed);box.innerHTML=has?`<div class="phw"><img id="phimg" class="zm" alt=""><div class="pha"><label class="btn sm">تغییر عکس<input type="file" accept="image/*" hidden class="phf"></label><button class="btn sm ghost danger-t" type="button" id="phrm">حذف عکس</button></div></div>`:`<label class="upl">${I.cam}<span>${label}</span><input type="file" accept="image/*" hidden class="phf"></label>`;
  if(has){const img=$('#phimg',box);if(state.blob){state.url&&URL.revokeObjectURL(state.url);state.url=URL.createObjectURL(state.blob);img.src=state.url}else photoURL(state.id).then(u=>{if(u)img.src=u});$('#phrm',box).onclick=()=>{state.blob=null;state.removed=true;draw()}}
  $('.phf',box).onchange=async e=>{const f=e.target.files[0];if(!f)return;state.blob=await shrink(f);state.removed=false;draw()}};draw()}
 async function commitPhoto(state,oldId){if(state.blob){const nid=uid();await photoSet(nid,state.blob);if(oldId)await photoDel(oldId);return nid}if(state.removed){if(oldId)await photoDel(oldId);return null}return oldId||null}
@@ -426,7 +434,7 @@ const allDone=()=>W.ex.every(e=>(W.log[e.id]||[]).length>=e.sets);
 function renderWk(){const ex=cx(),L=W.log[ex.id]||[],c=cur(),setNo=L.length+1,extra=setNo>ex.sets,h=histFor(ex.name),lastE=h.length?h[h.length-1].e:null,sug=suggest(ex,lastE);
  $('#wk').innerHTML=`<div class="wtop"><button class="ib" data-do="wkMin">${I.down}<span>کوچک کن</span></button><div class="clock" id="wclock" dir="ltr">${clk(Date.now()-W.start)}</div><button class="ib red-t" data-do="wkFinish">پایان تمرین</button></div>
  <div class="segs">${W.ex.map((e,i)=>{const n=(W.log[e.id]||[]).length;return`<button class="seg ${i===W.idx?'cur':''} ${n>=e.sets?'done':n?'part':''}" data-do="goEx" data-id="${i}" aria-label="${esc(e.name)}"></button>`}).join('')}</div>
- <div class="wcard"><div class="wph ${ex.photoId?'':'np'}">${ex.photoId?`<img data-pid="${ex.photoId}" alt="">`:plate}</div>
+ <div class="wcard"><div class="wph ${ex.photoId?'':'np'}">${ex.photoId?`<img class="zm" data-pid="${ex.photoId}" alt="">`:plate}</div>
  <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${fa(ex.sets)}×${repTxt(ex)}</p>${(()=>{const[a,b]=grp(W.ex,W.idx);return a<b?`<span class="ssb">سوپرست: ${esc(W.ex.slice(a,b+1).map(x=>x.name).join(' + '))}</span>`:''})()}<h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
  <div class="sets">${Array.from({length:Math.max(ex.sets,L.length)},(_,i)=>{const s=L[i];return`<div class="st ${s?'ok':i===L.length?'now':''}"><small>ست ${fa(i+1)}</small><b>${s?wshort(s.w)+'×'+fa(s.r):'—'}</b></div>`}).join('')}${extra?`<div class="st now"><small>ست ${fa(setNo)}</small><b>اضافه</b></div>`:''}</div></div>
  <div class="stp2"><div class="stp"><span class="lab">وزنه · کیلو</span><div class="ctl"><input id="wW" inputmode="decimal" value="${c.w}" aria-label="وزنه"><button class="pm" data-do="wInc" aria-label="بیشتر">+</button><button class="pm" data-do="wDec" aria-label="کمتر">−</button></div></div>
@@ -490,14 +498,18 @@ wipe:async()=>{if(!await ask('همه‌ی برنامه‌ها، تاریخچه،
 wkMin:()=>closeWk(),wkFinish:()=>finishWk(),
 wDec:()=>adj('w',-S.settings.step),wInc:()=>adj('w',S.settings.step),rDec:()=>adj('r',-1),rInc:()=>adj('r',1),
 applySug:id=>{const c=cur();c.w=+id;$('#wW').value=c.w;saveW();renderWk()},
-setDone:()=>setDone(),noteToggle:(_,t)=>t.classList.toggle('open'),
+setDone:()=>setDone(),zoomClose:()=>closeZoom(),zoomRot:()=>$('#zoom').classList.toggle('rot'),noteToggle:(_,t)=>t.classList.toggle('open'),
 undo:()=>{const ex=cx(),L=W.log[ex.id];if(L&&L.length){const l=L.pop();W.cur[ex.id]={w:l.w,r:l.r};saveW();renderWk()}},
 prevEx:()=>{if(W.idx>0){W.idx--;saveW();renderWk()}},nextEx:()=>{if(W.idx<W.ex.length-1){W.idx++;saveW();renderWk()}},
 goEx:id=>{W.idx=+id;saveW();renderWk()},
 skipRest:()=>{cancelSched();W.rest=null;saveW();$('#rest').hidden=true},
 restAdj:id=>{if(!W.rest)return;unlock();W.rest.end=Math.max(Date.now()+1000,W.rest.end+id*1000);W.rest.total=Math.max(W.rest.total,(W.rest.end-Date.now())/1000);lastTick=null;saveW();scheduleRest();tickRest()}
 };
-document.addEventListener('click',e=>{const t=e.target.closest('[data-do]');if(!t)return;const f=ACT[t.dataset.do];if(f){e.preventDefault();f(t.dataset.id,t)}});
+function openZoom(src){const z=$('#zoom'),i=$('#zimg');z.classList.remove('rot');i.onload=()=>{if(i.naturalWidth>i.naturalHeight*1.1&&innerHeight>innerWidth)z.classList.add('rot')};i.src=src;z.hidden=false;if(i.complete&&i.naturalWidth)i.onload()}
+function closeZoom(){$('#zoom').hidden=true;$('#zimg').removeAttribute('src')}
+$('#zoom').addEventListener('click',e=>{if(e.target.id==='zoom'||e.target.id==='zimg')closeZoom()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#zoom').hidden)closeZoom()});
+document.addEventListener('click',e=>{const z=e.target.closest('img.zm');if(z&&z.src){e.preventDefault();e.stopPropagation();return openZoom(z.src)}const t=e.target.closest('[data-do]');if(!t)return;const f=ACT[t.dataset.do];if(f){e.preventDefault();f(t.dataset.id,t)}});
 document.addEventListener('input',e=>{if(!W)return;const id=e.target.id;if(id==='wW'||id==='wR'){const c=cur();if(id==='wW')c.w=Math.max(0,num(e.target.value));else c.r=Math.max(0,Math.round(num(e.target.value)));saveW()}});
 document.addEventListener('change',e=>{if(e.target.id==='imp'){const f=e.target.files[0];e.target.value='';if(f)importData(f)}});
 document.addEventListener('focusin',e=>{if(e.target.matches('.ctl input,.num'))setTimeout(()=>{try{e.target.select()}catch(_){}},0)});
