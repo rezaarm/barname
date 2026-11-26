@@ -53,7 +53,7 @@ svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-l
 .exm{flex:1}.exm b{display:block;font-size:16px;line-height:1.35}.exm small{color:var(--mute);font-size:13px;display:block}
 .ord{display:flex;flex-direction:column;gap:4px}
 .mini{width:40px;height:32px;border:0;background:var(--card2);border-radius:9px;display:grid;place-items:center}
-.dim{opacity:.28}.mini svg{width:18px;height:18px}
+.dim{opacity:.28}.ex.ss{margin-bottom:3px;border-bottom-left-radius:6px;border-bottom-right-radius:6px}.ex.ssn{border-top-left-radius:6px;border-top-right-radius:6px}.ex.ss,.ex.ssn{box-shadow:inset -5px 0 0 var(--red),var(--shadow)}.sst{color:var(--red)!important;font-weight:800}.ssb{display:inline-block;margin:2px 16px 4px;background:var(--ink);color:var(--bg);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800}.mini svg{width:18px;height:18px}
 .dock{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));padding:14px 16px 10px;background:linear-gradient(transparent,var(--bg) 40%);display:flex;justify-content:center;z-index:10}
 .dock .big{max-width:608px}
 .spacer{height:84px}
@@ -209,6 +209,8 @@ const pz=n=>String(n).padStart(2,'0');
 const clk=ms=>{const t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return toFa(h?`${h}:${pz(m)}:${pz(s)}`:`${m}:${pz(s)}`)};
 const mmss=sec=>clk(Math.ceil(Math.max(0,sec))*1000);
 const dur=ms=>{const m=Math.max(1,Math.round(ms/60000));return m<60?fa(m)+' دقیقه':fa(Math.floor(m/60))+' ساعت'+(m%60?' و '+fa(m%60)+' دقیقه':'')};
+const repTxt=e=>e.repsMax>e.reps?fa(e.reps)+'–'+fa(e.repsMax):fa(e.reps);
+const grp=(L,i)=>{let a=i,b=i;while(a>0&&L[a-1].ss)a--;while(b<L.length-1&&L[b].ss)b++;return[a,b]};
 const wtxt=w=>w>0?fa(w)+' کیلو':'وزن بدن';
 const wshort=w=>w>0?fa(w):'بدن';
 const vfmt=v=>v>=1000?NG.format(Math.round(v/100)/10)+' تن':fa(Math.round(v))+' کیلو';
@@ -312,7 +314,7 @@ function vPlans(){const now=new Date();
 function vPlan(id){const p=S.plans.find(x=>x.id===id);if(!p){sub=null;return vPlans()}const l=lastDone(p.id),n=p.exercises.length;
  return `<div class="bar"><button class="ib" data-do="back">${I.back}<span>برنامه‌ها</span></button><button class="ib" data-do="planMenu" data-id="${p.id}" aria-label="گزینه‌ها">${I.dots}</button></div>
  <h1 class="ttl">${esc(p.name)}</h1><p class="sub">${fa(n)} حرکت · ${fa(p.exercises.reduce((a,e)=>a+e.sets,0))} ست${l?' · آخرین بار '+dShort.format(l):''}</p>
- ${p.exercises.map((e,i)=>`<div class="ex" data-do="editEx" data-id="${e.id}"><div class="th">${e.photoId?`<img data-pid="${e.photoId}" alt="">`:fa(i+1)}</div><div class="exm"><b>${esc(e.name)}</b><small>${fa(e.sets)} ست × ${fa(e.reps)} تکرار · ${wtxt(e.weight)}</small><small>استراحت ${mmss(e.rest)}${e.note?' · <span class="exn">ملاحظات دارد</span>':''}</small></div><div class="ord"><button class="mini ${i?'':'dim'}" data-do="mvUp" data-id="${e.id}" aria-label="بالاتر">${I.up}</button><button class="mini ${i<n-1?'':'dim'}" data-do="mvDown" data-id="${e.id}" aria-label="پایین‌تر">${I.down}</button></div></div>`).join('')||'<p class="mute">هنوز حرکتی اضافه نکردی. حرکت‌ها رو به همون ترتیبی که می‌زنی اضافه کن.</p>'}
+ ${p.exercises.map((e,i)=>`<div class="ex ${e.ss&&i<n-1?'ss':''} ${i&&p.exercises[i-1].ss?'ssn':''}" data-do="editEx" data-id="${e.id}"><div class="th">${e.photoId?`<img data-pid="${e.photoId}" alt="">`:fa(i+1)}</div><div class="exm"><b>${esc(e.name)}</b><small>${fa(e.sets)} ست × ${repTxt(e)} تکرار · ${wtxt(e.weight)}</small><small>${e.ss&&i<n-1?'<span class="sst">سوپرست ↓ بدون استراحت برو حرکت بعدی</span>':'استراحت '+mmss(e.rest)}${e.note?' · <span class="exn">ملاحظات دارد</span>':''}</small></div><div class="ord"><button class="mini ${i?'':'dim'}" data-do="mvUp" data-id="${e.id}" aria-label="بالاتر">${I.up}</button><button class="mini ${i<n-1?'':'dim'}" data-do="mvDown" data-id="${e.id}" aria-label="پایین‌تر">${I.down}</button></div></div>`).join('')||'<p class="mute">هنوز حرکتی اضافه نکردی. حرکت‌ها رو به همون ترتیبی که می‌زنی اضافه کن.</p>'}
  <button class="add" data-do="addEx">${I.plus} افزودن حرکت</button>
  ${n?`<div class="spacer"></div><div class="dock"><button class="big" data-do="start" data-id="${p.id}">${I.play} شروع تمرین</button></div>`:''}`}
 
@@ -376,18 +378,19 @@ function exSheet(planId,exId){const p=S.plans.find(x=>x.id===planId);if(!p)retur
  const st={id:e.photoId||null,blob:null,removed:false},names=[...new Set([...allNames(),...PRESETS])];
  openSheet(`<h3>${exId?'ویرایش حرکت':'حرکت جدید'}</h3><div id="ph"></div>
  <label class="fld"><span>نام حرکت</span><input id="f-name" list="exn" value="${esc(e.name)}" placeholder="مثلاً پرس سینه هالتر" autocomplete="off"></label><datalist id="exn">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
- <div class="g3"><label class="fld"><span>تعداد ست</span><input class="num" id="f-sets" inputmode="numeric" value="${e.sets}"></label><label class="fld"><span>تکرار</span><input class="num" id="f-reps" inputmode="numeric" value="${e.reps}"></label><label class="fld"><span>وزنه (کیلو)</span><input class="num" id="f-w" inputmode="decimal" value="${e.weight}"></label></div>
+ <div class="g2"><label class="fld"><span>تعداد ست</span><input class="num" id="f-sets" inputmode="numeric" value="${e.sets}"></label><label class="fld"><span>وزنه (کیلو)</span><input class="num" id="f-w" inputmode="decimal" value="${e.weight}"></label><label class="fld"><span>تکرار (کمترین)</span><input class="num" id="f-reps" inputmode="numeric" value="${e.reps}"></label><label class="fld"><span>تا (بیشترین، اختیاری)</span><input class="num" id="f-rmax" inputmode="numeric" value="${e.repsMax>e.reps?e.repsMax:''}" placeholder="مثلاً ۲۰"></label></div>
+ <div class="li first" style="margin-bottom:10px"><div><b>سوپرست با حرکت بعدی</b><small>بعد از هر ست این حرکت، بدون استراحت برو سراغ حرکت بعدی. استراحت، بعد از آخرین حرکت سوپرست حساب می‌شه.</small></div><button type="button" class="sw ${e.ss?'on':''}" id="f-ss" role="switch" aria-checked="${!!e.ss}"><i></i></button></div>
  <div class="fld"><span>استراحت بین ست‌ها</span><div class="chips" id="restc">${[30,45,60,90,120,180].map(s=>`<button type="button" class="chip ${e.rest===s?'on':''}" data-rest="${s}">${mmss(s)}</button>`).join('')}</div><div class="restin"><input class="num" id="f-rest" inputmode="numeric" value="${e.rest}" aria-label="استراحت به ثانیه"><span>ثانیه</span></div></div>
  <label class="fld"><span>ملاحظات و نکات فنی (اختیاری)</span><textarea id="f-note" rows="5" placeholder="مثلاً: در پایین‌ترین نقطه کمر از صندلی جدا نشه؛ دامنه رو کوتاه‌تر کن">${esc(e.note||'')}</textarea></label>
  <p class="mute sm" style="margin:-4px 0 4px">وزنه صفر یعنی حرکت با وزن بدن.</p>
  <div class="row2">${exId?'<button class="btn ghost danger-t" id="f-del">حذف حرکت</button>':'<button class="btn ghost" id="f-cancel">انصراف</button>'}<button class="btn primary" id="f-save">ذخیره</button></div>`,P=>{
-  photoBox(P,st,'عکس خودت در این حرکت (اختیاری)');
+  photoBox(P,st,'عکس خودت در این حرکت (اختیاری)');let ss=!!e.ss;$('#f-ss',P).onclick=ev=>{ss=!ss;ev.currentTarget.classList.toggle('on',ss);ev.currentTarget.setAttribute('aria-checked',ss)};
   $('#restc',P).onclick=ev=>{const b=ev.target.closest('[data-rest]');if(!b)return;$('#f-rest',P).value=b.dataset.rest;$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',c===b))};
   $('#f-rest',P).oninput=ev=>{const v=Math.round(num(ev.target.value));$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',+c.dataset.rest===v))};
   if(!exId){$('#f-cancel',P).onclick=closeSheet;setTimeout(()=>$('#f-name',P).focus(),280)}
   else $('#f-del',P).onclick=async()=>{if(await ask('حرکت «'+e.name+'» از برنامه حذف بشه؟','حذف کن')){p.exercises=p.exercises.filter(x=>x!==e);photoDel(e.photoId);save();render()}};
   $('#f-save',P).onclick=async()=>{const name=$('#f-name',P).value.trim();if(!name){$('#f-name',P).focus();return toast('اسم حرکت رو بنویس')}
-   const o={name,sets:Math.max(1,Math.round(num($('#f-sets',P).value))||1),reps:Math.max(0,Math.round(num($('#f-reps',P).value))),weight:Math.max(0,num($('#f-w',P).value)),rest:Math.max(0,Math.round(num($('#f-rest',P).value))),note:$('#f-note',P).value.trim()};
+   const o={name,sets:Math.max(1,Math.round(num($('#f-sets',P).value))||1),reps:Math.max(0,Math.round(num($('#f-reps',P).value))),repsMax:Math.max(0,Math.round(num($('#f-rmax',P).value))),ss,weight:Math.max(0,num($('#f-w',P).value)),rest:Math.max(0,Math.round(num($('#f-rest',P).value))),note:$('#f-note',P).value.trim()};
    o.photoId=await commitPhoto(st,e.photoId);if(exId)Object.assign(e,o);else p.exercises.push({id:uid(),...o});save();closeSheet();render()}})}
 
 function planMenu(id){const p=S.plans.find(x=>x.id===id);if(!p)return;openSheet(`<h3>${esc(p.name)}</h3><div class="menu"><button class="btn" id="m1">تغییر نام</button><button class="btn" id="m2">ساخت کپی از این برنامه</button><button class="btn ghost danger-t" id="m3">حذف برنامه</button><button class="btn ghost" id="m4">بستن</button></div>`,q=>{
@@ -416,7 +419,7 @@ function bodySheet(id){const L=bodySorted(),b=id?S.body.find(x=>x.id===id):null,
 const cx=()=>W.ex[W.idx];
 function prefill(ex){const L=W.log[ex.id]||[];if(L.length){const l=L[L.length-1];return{w:l.w,r:l.r}}const h=histFor(ex.name);if(h.length){const s0=h[h.length-1].e.sets[0];return{w:Math.max(s0.w,ex.weight||0),r:ex.reps||s0.r}}return{w:ex.weight||0,r:ex.reps||10}}
 const cur=()=>{const ex=cx();return W.cur[ex.id]||(W.cur[ex.id]=prefill(ex))};
-function suggest(ex,lastE){if(!lastE||!ex.reps)return 0;const s=lastE.sets.slice(0,ex.sets);if(s.length<ex.sets||!s.every(x=>x.r>=ex.reps))return 0;const t=top(lastE);return t>0?Math.round((t+S.settings.step)*100)/100:0}
+function suggest(ex,lastE){const tg=ex.repsMax>ex.reps?ex.repsMax:ex.reps;if(!lastE||!tg)return 0;const s=lastE.sets.slice(0,ex.sets);if(s.length<ex.sets||!s.every(x=>x.r>=tg))return 0;const t=top(lastE);return t>0?Math.round((t+S.settings.step)*100)/100:0}
 function nextUnf(){const n=W.ex.length;for(let k=1;k<=n;k++){const i=(W.idx+k)%n,e=W.ex[i];if((W.log[e.id]||[]).length<e.sets)return i}return -1}
 const allDone=()=>W.ex.every(e=>(W.log[e.id]||[]).length>=e.sets);
 
@@ -424,7 +427,7 @@ function renderWk(){const ex=cx(),L=W.log[ex.id]||[],c=cur(),setNo=L.length+1,ex
  $('#wk').innerHTML=`<div class="wtop"><button class="ib" data-do="wkMin">${I.down}<span>کوچک کن</span></button><div class="clock" id="wclock" dir="ltr">${clk(Date.now()-W.start)}</div><button class="ib red-t" data-do="wkFinish">پایان تمرین</button></div>
  <div class="segs">${W.ex.map((e,i)=>{const n=(W.log[e.id]||[]).length;return`<button class="seg ${i===W.idx?'cur':''} ${n>=e.sets?'done':n?'part':''}" data-do="goEx" data-id="${i}" aria-label="${esc(e.name)}"></button>`}).join('')}</div>
  <div class="wcard"><div class="wph ${ex.photoId?'':'np'}">${ex.photoId?`<img data-pid="${ex.photoId}" alt="">`:plate}</div>
- <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${fa(ex.sets)}×${fa(ex.reps)}</p><h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
+ <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${fa(ex.sets)}×${repTxt(ex)}</p>${(()=>{const[a,b]=grp(W.ex,W.idx);return a<b?`<span class="ssb">سوپرست: ${esc(W.ex.slice(a,b+1).map(x=>x.name).join(' + '))}</span>`:''})()}<h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
  <div class="sets">${Array.from({length:Math.max(ex.sets,L.length)},(_,i)=>{const s=L[i];return`<div class="st ${s?'ok':i===L.length?'now':''}"><small>ست ${fa(i+1)}</small><b>${s?wshort(s.w)+'×'+fa(s.r):'—'}</b></div>`}).join('')}${extra?`<div class="st now"><small>ست ${fa(setNo)}</small><b>اضافه</b></div>`:''}</div></div>
  <div class="stp2"><div class="stp"><span class="lab">وزنه · کیلو</span><div class="ctl"><input id="wW" inputmode="decimal" value="${c.w}" aria-label="وزنه"><button class="pm" data-do="wInc" aria-label="بیشتر">+</button><button class="pm" data-do="wDec" aria-label="کمتر">−</button></div></div>
  <div class="stp"><span class="lab">تکرار</span><div class="ctl"><input id="wR" inputmode="numeric" value="${c.r}" aria-label="تکرار"><button class="pm" data-do="rInc" aria-label="بیشتر">+</button><button class="pm" data-do="rDec" aria-label="کمتر">−</button></div></div></div>
@@ -440,10 +443,16 @@ function openWk(){if(!W)return;$('#wk').hidden=false;document.body.classList.add
 function closeWk(){$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
 function endWk(){cancelSched();W=null;kvSet('active',null).catch(()=>{});$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
 function setDone(){unlock();const ex=cx(),c=cur();c.w=Math.max(0,num($('#wW').value));c.r=Math.max(0,Math.round(num($('#wR').value)));if(!(c.r>0))return toast('تعداد تکرار رو وارد کن');
- (W.log[ex.id]=W.log[ex.id]||[]).push({w:c.w,r:c.r,t:Date.now()});const L=W.log[ex.id];let nx;
- if(L.length>=ex.sets){const ni=nextUnf();if(ni===-1){saveW();renderWk();$('#wk').scrollTo({top:1e5,behavior:'smooth'});return toast('آفرین! همه‌ی ست‌ها انجام شد')}W.idx=ni;const ne=W.ex[ni],nc=W.cur[ne.id]||(W.cur[ne.id]=prefill(ne));nx='بعدی: '+ne.name+' · ست '+fa((W.log[ne.id]||[]).length+1)+' · '+wtxt(nc.w)+' × '+fa(nc.r)}
- else nx='بعدی: ست '+fa(L.length+1)+' از '+fa(ex.sets)+' · '+wtxt(c.w)+' × '+fa(c.r);
- renderWk();$('#wk').scrollTop=0;if(ex.rest>0){W.rest={end:Date.now()+ex.rest*1000,total:ex.rest,next:nx};showRest();scheduleRest()}saveW()}
+ (W.log[ex.id]=W.log[ex.id]||[]).push({w:c.w,r:c.r,t:Date.now()});
+ const rem=i=>(W.log[W.ex[i].id]||[]).length<W.ex[i].sets,[a,b]=grp(W.ex,W.idx),from=W.idx;let ni=-1,rest=true;
+ if(a<b){for(let i=from+1;i<=b;i++)if(rem(i)){ni=i;rest=false;break}if(ni<0)for(let i=a;i<=b;i++)if(rem(i)){ni=i;break}}else if(rem(from))ni=from;
+ if(ni<0)ni=nextUnf();
+ if(ni===-1){saveW();renderWk();$('#wk').scrollTo({top:1e5,behavior:'smooth'});return toast('آفرین! همه‌ی ست‌ها انجام شد')}
+ W.idx=ni;const ne=W.ex[ni],nc=W.cur[ne.id]||(W.cur[ne.id]=prefill(ne)),nn=(W.log[ne.id]||[]).length+1;
+ const nx='بعدی: '+(ni===from?'':ne.name+' · ')+'ست '+fa(nn)+' از '+fa(ne.sets)+' · '+wtxt(nc.w)+' × '+fa(nc.r);
+ const rs=W.ex[b].rest;renderWk();$('#wk').scrollTop=0;
+ if(!rest){saveW();return toast('سوپرست: بدون استراحت برو '+ne.name)}
+ if(rs>0){W.rest={end:Date.now()+rs*1000,total:rs,next:nx};showRest();scheduleRest()}saveW()}
 function showRest(){const el=$('#rest');el.classList.remove('go');el.innerHTML=`<div class="rin"><p class="kick">استراحت</p><div class="ring"><svg viewBox="0 0 260 260"><circle cx="130" cy="130" r="112" class="trk"/><circle cx="130" cy="130" r="112" class="prg" id="rprg"/></svg><div class="rt" id="rtime"></div></div><div class="row2"><button class="btn ghost" data-do="restAdj" data-id="-15">−۱۵ ثانیه</button><button class="btn ghost" data-do="restAdj" data-id="15">+۱۵ ثانیه</button></div><button class="big" style="margin-top:12px" data-do="skipRest">رد کردن استراحت</button><p class="nx">${esc(W.rest.next)}</p></div>`;el.hidden=false;lastTick=null;tickRest()}
 function tickRest(){if(!W||!W.rest)return;const rem=(W.rest.end-Date.now())/1000,t=$('#rtime'),p=$('#rprg');if(t)t.textContent=mmss(rem);if(p)p.style.strokeDashoffset=(703.7*(1-Math.max(0,rem)/W.rest.total)).toFixed(1);
  const sec=Math.ceil(rem);if(!schedOK&&sec<=3&&sec>0&&sec!==lastTick){lastTick=sec;beep('tick')}if(rem<=0)restDone()}
