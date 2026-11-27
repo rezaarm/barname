@@ -107,6 +107,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue)}
 .st{flex:none;min-width:70px;border-radius:12px;background:var(--card2);padding:6px 8px;text-align:center}
 .st small{display:block;font-size:11px;color:var(--mute);font-weight:700}.st b{font-size:15px;white-space:nowrap}
 .st.ok{background:var(--redsoft)}.st.ok b{color:var(--red)}
+.st.wu{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}.st.wu.ok{background:var(--card2);box-shadow:none}.st.wu.ok b{color:var(--mute)}.tgt{color:var(--mute)}
+.wur,.wuh{display:grid;grid-template-columns:20px repeat(3,minmax(0,1fr)) 40px;gap:6px;align-items:center;margin-bottom:6px}.wuh{font-size:11px;color:var(--mute);font-weight:700;text-align:center;margin-bottom:4px}.wur>span{font-weight:800;color:var(--mute);text-align:center}.wur input{min-height:44px;padding:6px;font-size:16px}
 .st.now{box-shadow:inset 0 0 0 2px var(--ink)}
 .stp2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:12px auto}
 .stp{background:var(--card);border-radius:20px;padding:10px 8px;box-shadow:var(--shadow);text-align:center}
@@ -217,7 +219,8 @@ const pz=n=>String(n).padStart(2,'0');
 const clk=ms=>{const t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return toFa(h?`${h}:${pz(m)}:${pz(s)}`:`${m}:${pz(s)}`)};
 const mmss=sec=>clk(Math.ceil(Math.max(0,sec))*1000);
 const dur=ms=>{const m=Math.max(1,Math.round(ms/60000));return m<60?fa(m)+' دقیقه':fa(Math.floor(m/60))+' ساعت'+(m%60?' و '+fa(m%60)+' دقیقه':'')};
-const repTxt=e=>e.repsMax>e.reps?fa(e.reps)+'–'+fa(e.repsMax):fa(e.reps);
+const wsW=w=>w>0?fa(w):'میله',wtW=w=>w>0?fa(w)+' کیلو':'میله خالی';
+const repTxt=e=>e.repList&&e.repList.length?e.repList.map(fa).join('، '):e.repsMax>e.reps?fa(e.reps)+'–'+fa(e.repsMax):fa(e.reps);
 const grp=(L,i)=>{let a=i,b=i;while(a>0&&L[a-1].ss)a--;while(b<L.length-1&&L[b].ss)b++;return[a,b]};
 const wtxt=w=>w>0?fa(w)+' کیلو':'وزن بدن';
 const wshort=w=>w>0?fa(w):'بدن';
@@ -322,7 +325,7 @@ function vPlans(){const now=new Date();
 function vPlan(id){const p=S.plans.find(x=>x.id===id);if(!p){sub=null;return vPlans()}const l=lastDone(p.id),n=p.exercises.length;
  return `<div class="bar"><button class="ib" data-do="back">${I.back}<span>برنامه‌ها</span></button><button class="ib" data-do="planMenu" data-id="${p.id}" aria-label="گزینه‌ها">${I.dots}</button></div>
  <h1 class="ttl">${esc(p.name)}</h1><p class="sub">${fa(n)} حرکت · ${fa(p.exercises.reduce((a,e)=>a+e.sets,0))} ست${l?' · آخرین بار '+dShort.format(l):''}</p>
- ${p.exercises.map((e,i)=>`<div class="ex ${e.ss&&i<n-1?'ss':''} ${i&&p.exercises[i-1].ss?'ssn':''}" data-do="editEx" data-id="${e.id}"><div class="th">${e.photoId?`<img data-pid="${e.photoId}" alt="">`:fa(i+1)}</div><div class="exm"><b>${esc(e.name)}</b><small>${fa(e.sets)} ست × ${repTxt(e)} تکرار · ${wtxt(e.weight)}</small><small>${e.ss&&i<n-1?'<span class="sst">سوپرست ↓ بدون استراحت برو حرکت بعدی</span>':'استراحت '+mmss(e.rest)}${e.note?' · <span class="exn">ملاحظات دارد</span>':''}</small></div><div class="ord"><button class="mini ${i?'':'dim'}" data-do="mvUp" data-id="${e.id}" aria-label="بالاتر">${I.up}</button><button class="mini ${i<n-1?'':'dim'}" data-do="mvDown" data-id="${e.id}" aria-label="پایین‌تر">${I.down}</button></div></div>`).join('')||'<p class="mute">هنوز حرکتی اضافه نکردی. حرکت‌ها رو به همون ترتیبی که می‌زنی اضافه کن.</p>'}
+ ${p.exercises.map((e,i)=>`<div class="ex ${e.ss&&i<n-1?'ss':''} ${i&&p.exercises[i-1].ss?'ssn':''}" data-do="editEx" data-id="${e.id}"><div class="th">${e.photoId?`<img data-pid="${e.photoId}" alt="">`:fa(i+1)}</div><div class="exm"><b>${esc(e.name)}</b><small>${fa(e.sets)} ست × ${repTxt(e)} تکرار · ${wtxt(e.weight)}${e.warmups&&e.warmups.length?' · '+fa(e.warmups.length)+' گرم‌کردنی':''}</small><small>${e.ss&&i<n-1?'<span class="sst">سوپرست ↓ بدون استراحت برو حرکت بعدی</span>':'استراحت '+mmss(e.rest)}${e.note?' · <span class="exn">ملاحظات دارد</span>':''}</small></div><div class="ord"><button class="mini ${i?'':'dim'}" data-do="mvUp" data-id="${e.id}" aria-label="بالاتر">${I.up}</button><button class="mini ${i<n-1?'':'dim'}" data-do="mvDown" data-id="${e.id}" aria-label="پایین‌تر">${I.down}</button></div></div>`).join('')||'<p class="mute">هنوز حرکتی اضافه نکردی. حرکت‌ها رو به همون ترتیبی که می‌زنی اضافه کن.</p>'}
  <button class="add" data-do="addEx">${I.plus} افزودن حرکت</button>
  ${n?`<div class="spacer"></div><div class="dock"><button class="big" data-do="start" data-id="${p.id}">${I.play} شروع تمرین</button></div>`:''}`}
 
@@ -387,19 +390,23 @@ function exSheet(planId,exId){const p=S.plans.find(x=>x.id===planId);if(!p)retur
  openSheet(`<h3>${exId?'ویرایش حرکت':'حرکت جدید'}</h3><div id="ph"></div>
  <label class="fld"><span>نام حرکت</span><input id="f-name" list="exn" value="${esc(e.name)}" placeholder="مثلاً پرس سینه هالتر" autocomplete="off"></label><datalist id="exn">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
  <div class="g2"><label class="fld"><span>تعداد ست</span><input class="num" id="f-sets" inputmode="numeric" value="${e.sets}"></label><label class="fld"><span>وزنه (کیلو)</span><input class="num" id="f-w" inputmode="decimal" value="${e.weight}"></label><label class="fld"><span>تکرار (کمترین)</span><input class="num" id="f-reps" inputmode="numeric" value="${e.reps}"></label><label class="fld"><span>تا (بیشترین، اختیاری)</span><input class="num" id="f-rmax" inputmode="numeric" value="${e.repsMax>e.reps?e.repsMax:''}" placeholder="مثلاً ۲۰"></label></div>
+ <div class="fld"><span>ست‌های گرم‌کردنی (اختیاری، جزو آمار حساب نمی‌شن)</span><div id="wul"></div><button type="button" class="btn ghost sm" id="wuadd" style="width:100%">${I.plus} افزودن ست گرم‌کردنی</button></div>
  <div class="li first" style="margin-bottom:10px"><div><b>سوپرست با حرکت بعدی</b><small>بعد از هر ست این حرکت، بدون استراحت برو سراغ حرکت بعدی. استراحت، بعد از آخرین حرکت سوپرست حساب می‌شه.</small></div><button type="button" class="sw ${e.ss?'on':''}" id="f-ss" role="switch" aria-checked="${!!e.ss}"><i></i></button></div>
  <div class="fld"><span>استراحت بین ست‌ها</span><div class="chips" id="restc">${[30,45,60,90,120,180].map(s=>`<button type="button" class="chip ${e.rest===s?'on':''}" data-rest="${s}">${mmss(s)}</button>`).join('')}</div><div class="restin"><input class="num" id="f-rest" inputmode="numeric" value="${e.rest}" aria-label="استراحت به ثانیه"><span>ثانیه</span></div></div>
  <label class="fld"><span>ملاحظات و نکات فنی (اختیاری)</span><textarea id="f-note" rows="5" placeholder="مثلاً: در پایین‌ترین نقطه کمر از صندلی جدا نشه؛ دامنه رو کوتاه‌تر کن">${esc(e.note||'')}</textarea></label>
  <p class="mute sm" style="margin:-4px 0 4px">وزنه صفر یعنی حرکت با وزن بدن.</p>
  <div class="row2">${exId?'<button class="btn ghost danger-t" id="f-del">حذف حرکت</button>':'<button class="btn ghost" id="f-cancel">انصراف</button>'}<button class="btn primary" id="f-save">ذخیره</button></div>`,P=>{
-  photoBox(P,st,'عکس خودت در این حرکت (اختیاری)');let ss=!!e.ss;$('#f-ss',P).onclick=ev=>{ss=!ss;ev.currentTarget.classList.toggle('on',ss);ev.currentTarget.setAttribute('aria-checked',ss)};
+  photoBox(P,st,'عکس خودت در این حرکت (اختیاری)');let ss=!!e.ss;const wu=(e.warmups||[]).map(x=>({...x}));const drawWU=()=>{$('#wul',P).innerHTML=wu.length?`<div class="wuh"><span></span><span>وزنه (۰ = میله)</span><span>تکرار</span><span>استراحت بعدش (ثانیه)</span><span></span></div>`+wu.map((x,i)=>`<div class="wur"><span>${fa(i+1)}</span><input class="num" data-k="w" data-i="${i}" inputmode="decimal" value="${x.w}" aria-label="وزنه"><input class="num" data-k="r" data-i="${i}" inputmode="numeric" value="${x.r}" aria-label="تکرار"><input class="num" data-k="rest" data-i="${i}" inputmode="numeric" value="${x.rest}" aria-label="استراحت"><button type="button" class="mini" data-x="${i}" aria-label="حذف">✕</button></div>`).join(''):''};drawWU();
+  $('#wul',P).oninput=ev=>{const t=ev.target;if(t.dataset.k)wu[+t.dataset.i][t.dataset.k]=num(t.value)};
+  $('#wul',P).onclick=ev=>{const b=ev.target.closest('[data-x]');if(b){wu.splice(+b.dataset.x,1);drawWU()}};
+  $('#wuadd',P).onclick=()=>{const l=wu[wu.length-1];wu.push(l?{...l}:{w:0,r:10,rest:60});drawWU()};$('#f-ss',P).onclick=ev=>{ss=!ss;ev.currentTarget.classList.toggle('on',ss);ev.currentTarget.setAttribute('aria-checked',ss)};
   $('#restc',P).onclick=ev=>{const b=ev.target.closest('[data-rest]');if(!b)return;$('#f-rest',P).value=b.dataset.rest;$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',c===b))};
   $('#f-rest',P).oninput=ev=>{const v=Math.round(num(ev.target.value));$$('#restc .chip',P).forEach(c=>c.classList.toggle('on',+c.dataset.rest===v))};
   if(!exId){$('#f-cancel',P).onclick=closeSheet;setTimeout(()=>$('#f-name',P).focus(),280)}
   else $('#f-del',P).onclick=async()=>{if(await ask('حرکت «'+e.name+'» از برنامه حذف بشه؟','حذف کن')){p.exercises=p.exercises.filter(x=>x!==e);photoDel(e.photoId);save();render()}};
   $('#f-save',P).onclick=async()=>{const name=$('#f-name',P).value.trim();if(!name){$('#f-name',P).focus();return toast('اسم حرکت رو بنویس')}
-   const o={name,sets:Math.max(1,Math.round(num($('#f-sets',P).value))||1),reps:Math.max(0,Math.round(num($('#f-reps',P).value))),repsMax:Math.max(0,Math.round(num($('#f-rmax',P).value))),ss,weight:Math.max(0,num($('#f-w',P).value)),rest:Math.max(0,Math.round(num($('#f-rest',P).value))),note:$('#f-note',P).value.trim()};
-   o.photoId=await commitPhoto(st,e.photoId);if(exId)Object.assign(e,o);else p.exercises.push({id:uid(),...o});save();closeSheet();render()}})}
+   const o={name,sets:Math.max(1,Math.round(num($('#f-sets',P).value))||1),reps:Math.max(0,Math.round(num($('#f-reps',P).value))),repsMax:Math.max(0,Math.round(num($('#f-rmax',P).value))),ss,warmups:wu.filter(x=>x.r>0).map(x=>({w:Math.max(0,x.w),r:Math.round(x.r),rest:Math.max(0,Math.round(x.rest))})),repList:[],weight:Math.max(0,num($('#f-w',P).value)),rest:Math.max(0,Math.round(num($('#f-rest',P).value))),note:$('#f-note',P).value.trim()};
+   if(o.repList.length){o.sets=o.repList.length;if(!o.reps)o.reps=Math.min(...o.repList)}o.photoId=await commitPhoto(st,e.photoId);if(exId)Object.assign(e,o);else p.exercises.push({id:uid(),...o});save();closeSheet();render()}})}
 
 function planMenu(id){const p=S.plans.find(x=>x.id===id);if(!p)return;openSheet(`<h3>${esc(p.name)}</h3><div class="menu"><button class="btn" id="m1">تغییر نام</button><button class="btn" id="m2">ساخت کپی از این برنامه</button><button class="btn ghost danger-t" id="m3">حذف برنامه</button><button class="btn ghost" id="m4">بستن</button></div>`,q=>{
  $('#m1',q).onclick=()=>nameSheet('تغییر نام',p.name,n=>{p.name=n;save();render()});
@@ -409,7 +416,7 @@ function planMenu(id){const p=S.plans.find(x=>x.id===id);if(!p)return;openSheet(
 
 function sessSheet(id){const s=S.sessions.find(x=>x.id===id);if(!s)return;const v=s.entries.reduce((a,e)=>a+vol(e),0),n=s.entries.reduce((a,e)=>a+e.sets.length,0);
  openSheet(`<p class="kick">${wd.format(s.start)} · ${dFmt.format(s.start)}</p><h3>${esc(s.planName)}</h3><div class="tiles"><div class="tile"><b>${dur(s.end-s.start)}</b><small>مدت</small></div><div class="tile"><b>${fa(n)}</b><small>ست</small></div><div class="tile"><b>${vfmt(v)}</b><small>حجم کل</small></div></div>
- ${s.entries.map(e=>`<div class="sess"><header><b>${esc(e.name)}</b><span class="mute">${wtxt(top(e))}</span></header><div class="setl">${e.sets.map(x=>`<span>${wshort(x.w)}×${fa(x.r)}</span>`).join('')}</div></div>`).join('')}
+ ${s.entries.map(e=>`<div class="sess"><header><b>${esc(e.name)}</b><span class="mute">${wtxt(top(e))}</span></header><div class="setl">${e.sets.map(x=>`<span>${wshort(x.w)}×${fa(x.r)}</span>`).join('')}</div>${e.warm&&e.warm.length?`<small class="mute">گرم‌کردنی: ${e.warm.map(x=>wsW(x.w)+'×'+fa(x.r)).join(' · ')}</small>`:''}</div>`).join('')}
  <div class="row2"><button class="btn ghost danger-t" id="sdel">حذف این تمرین</button><button class="btn primary" id="sok">بستن</button></div>`,p=>{$('#sok',p).onclick=closeSheet;$('#sdel',p).onclick=async()=>{if(await ask('این تمرین از تاریخچه و آمار حذف بشه؟','حذف کن')){S.sessions=S.sessions.filter(x=>x!==s);save();render()}}})}
 
 function bodySheet(id){const L=bodySorted(),b=id?S.body.find(x=>x.id===id):null,prev=L.length?L[L.length-1].m:{},st={id:b&&b.photoId||null,blob:null,removed:false};
@@ -425,23 +432,26 @@ function bodySheet(id){const L=bodySorted(),b=id?S.body.find(x=>x.id===id):null,
 
 /* ---------- workout ---------- */
 const cx=()=>W.ex[W.idx];
-function prefill(ex){const L=W.log[ex.id]||[];if(L.length){const l=L[L.length-1];return{w:l.w,r:l.r}}const h=histFor(ex.name);if(h.length){const s0=h[h.length-1].e.sets[0];return{w:Math.max(s0.w,ex.weight||0),r:ex.reps||s0.r}}return{w:ex.weight||0,r:ex.reps||10}}
-const cur=()=>{const ex=cx();return W.cur[ex.id]||(W.cur[ex.id]=prefill(ex))};
-function suggest(ex,lastE){const tg=ex.repsMax>ex.reps?ex.repsMax:ex.reps;if(!lastE||!tg)return 0;const s=lastE.sets.slice(0,ex.sets);if(s.length<ex.sets||!s.every(x=>x.r>=tg))return 0;const t=top(lastE);return t>0?Math.round((t+S.settings.step)*100)/100:0}
+const tgR=(ex,i)=>ex.repList&&ex.repList[i]||ex.reps;
+const wus=ex=>ex.warmups||[];
+const inWarm=ex=>{W.wlog=W.wlog||{};W.wskip=W.wskip||{};return!W.wskip[ex.id]&&!(W.log[ex.id]||[]).length&&(W.wlog[ex.id]||[]).length<wus(ex).length};
+function prefill(ex){const L=W.log[ex.id]||[],rl=ex.repList&&ex.repList[L.length];if(L.length){const l=L[L.length-1];return{w:l.w,r:rl||l.r}}const h=histFor(ex.name);if(h.length){const s0=h[h.length-1].e.sets[0];return{w:Math.max(s0.w,ex.weight||0),r:tgR(ex,0)||s0.r}}return{w:ex.weight||0,r:tgR(ex,0)||10}}
+const cur=()=>{const ex=cx();if(inWarm(ex)){W.wcur=W.wcur||{};const k=(W.wlog[ex.id]||[]).length,sp=wus(ex)[k],c=W.wcur[ex.id];if(c&&c.k===k)return c;return W.wcur[ex.id]={k,w:sp.w,r:sp.r}}return W.cur[ex.id]||(W.cur[ex.id]=prefill(ex))};
+function suggest(ex,lastE){const tg=i=>ex.repList&&ex.repList[i]||(ex.repsMax>ex.reps?ex.repsMax:ex.reps);if(!lastE||!tg(0))return 0;const s=lastE.sets.slice(0,ex.sets);if(s.length<ex.sets||!s.every((x,i)=>x.r>=tg(i)))return 0;const t=top(lastE);return t>0?Math.round((t+S.settings.step)*100)/100:0}
 function nextUnf(){const n=W.ex.length;for(let k=1;k<=n;k++){const i=(W.idx+k)%n,e=W.ex[i];if((W.log[e.id]||[]).length<e.sets)return i}return -1}
 const allDone=()=>W.ex.every(e=>(W.log[e.id]||[]).length>=e.sets);
 
-function renderWk(){const ex=cx(),L=W.log[ex.id]||[],c=cur(),setNo=L.length+1,extra=setNo>ex.sets,h=histFor(ex.name),lastE=h.length?h[h.length-1].e:null,sug=suggest(ex,lastE);
+function renderWk(){const ex=cx(),L=W.log[ex.id]||[],c=cur(),warm=inWarm(ex),G=W.wlog[ex.id]||[],setNo=L.length+1,extra=setNo>ex.sets,h=histFor(ex.name),lastE=h.length?h[h.length-1].e:null,sug=suggest(ex,lastE);
  $('#wk').innerHTML=`<div class="wtop"><button class="ib" data-do="wkMin">${I.down}<span>کوچک کن</span></button><div class="clock" id="wclock" dir="ltr">${clk(Date.now()-W.start)}</div><button class="ib red-t" data-do="wkFinish">پایان تمرین</button></div>
  <div class="segs">${W.ex.map((e,i)=>{const n=(W.log[e.id]||[]).length;return`<button class="seg ${i===W.idx?'cur':''} ${n>=e.sets?'done':n?'part':''}" data-do="goEx" data-id="${i}" aria-label="${esc(e.name)}"></button>`}).join('')}</div>
  <div class="wcard"><div class="wph ${ex.photoId?'':'np'}">${ex.photoId?`<img class="zm" data-pid="${ex.photoId}" alt="">`:plate}</div>
- <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${fa(ex.sets)}×${repTxt(ex)}</p>${(()=>{const[a,b]=grp(W.ex,W.idx);return a<b?`<span class="ssb">سوپرست: ${esc(W.ex.slice(a,b+1).map(x=>x.name).join(' + '))}</span>`:''})()}<h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
- <div class="sets">${Array.from({length:Math.max(ex.sets,L.length)},(_,i)=>{const s=L[i];return`<div class="st ${s?'ok':i===L.length?'now':''}"><small>ست ${fa(i+1)}</small><b>${s?wshort(s.w)+'×'+fa(s.r):'—'}</b></div>`}).join('')}${extra?`<div class="st now"><small>ست ${fa(setNo)}</small><b>اضافه</b></div>`:''}</div></div>
+ <p class="kick">حرکت ${fa(W.idx+1)} از ${fa(W.ex.length)} · هدف ${ex.repList&&ex.repList.length?repTxt(ex):fa(ex.sets)+'×'+repTxt(ex)}</p>${(()=>{const[a,b]=grp(W.ex,W.idx);return a<b?`<span class="ssb">سوپرست: ${esc(W.ex.slice(a,b+1).map(x=>x.name).join(' + '))}</span>`:''})()}<h2>${esc(ex.name)}</h2>${ex.note?`<div class="note" data-do="noteToggle"><b>ملاحظات</b><span>${esc(ex.note)}</span>${ex.note.length>110||ex.note.includes('\n')?'<small>نمایش کامل</small>':''}</div>`:''}
+ <div class="sets">${wus(ex).map((sp,i)=>{const d=G[i];return`<div class="st wu ${d?'ok':warm&&i===G.length?'now':''}"><small>گرم ${fa(i+1)}</small><b>${d?wsW(d.w)+'×'+fa(d.r):`<span class="tgt">${wsW(sp.w)}×${fa(sp.r)}</span>`}</b></div>`}).join('')}${Array.from({length:Math.max(ex.sets,L.length)},(_,i)=>{const s=L[i];return`<div class="st ${s?'ok':!warm&&i===L.length?'now':''}"><small>ست ${fa(i+1)}</small><b>${s?wshort(s.w)+'×'+fa(s.r):`<span class="tgt">×${fa(tgR(ex,i))}</span>`}</b></div>`}).join('')}${extra?`<div class="st now"><small>ست ${fa(setNo)}</small><b>اضافه</b></div>`:''}</div></div>
  <div class="stp2"><div class="stp"><span class="lab">وزنه · کیلو</span><div class="ctl"><input id="wW" inputmode="decimal" value="${c.w}" aria-label="وزنه"><button class="pm" data-do="wInc" aria-label="بیشتر">+</button><button class="pm" data-do="wDec" aria-label="کمتر">−</button></div></div>
  <div class="stp"><span class="lab">تکرار</span><div class="ctl"><input id="wR" inputmode="numeric" value="${c.r}" aria-label="تکرار"><button class="pm" data-do="rInc" aria-label="بیشتر">+</button><button class="pm" data-do="rDec" aria-label="کمتر">−</button></div></div></div>
- <div class="hint"><span>${lastE?'دفعه‌ی قبل: '+lastE.sets.map(s=>wshort(s.w)+'×'+fa(s.r)).join('  ·  '):'اولین باره این حرکت رو ثبت می‌کنی'}</span>${sug&&sug>c.w?`<button class="chip grow" data-do="applySug" data-id="${sug}">پیشنهاد: ${fa(sug)} کیلو</button>`:''}</div>
- <button class="big" data-do="setDone">${I.check} ست ${fa(setNo)}${extra?' (اضافه)':''} تموم شد</button>
- <div class="wnav"><button class="btn ghost sm ${W.idx?'':'dim'}" data-do="prevEx">${I.back} قبلی</button>${L.length?'<button class="btn ghost sm" data-do="undo">حذف ست آخر</button>':'<span></span>'}<button class="btn ghost sm ${W.idx<W.ex.length-1?'':'dim'}" data-do="nextEx">بعدی ${I.fwd}</button></div>
+ ${warm?`<div class="hint"><span>ست گرم‌کردنی ${fa(G.length+1)} از ${fa(wus(ex).length)} · جزو آمار حساب نمی‌شه</span><button class="chip" data-do="skipWarm">رد کردن گرم‌کردنی</button></div>`:''}<div class="hint" ${warm?'hidden':''}><span>${lastE?'دفعه‌ی قبل: '+lastE.sets.map(s=>wshort(s.w)+'×'+fa(s.r)).join('  ·  '):'اولین باره این حرکت رو ثبت می‌کنی'}</span>${sug&&sug>c.w?`<button class="chip grow" data-do="applySug" data-id="${sug}">پیشنهاد: ${fa(sug)} کیلو</button>`:''}</div>
+ <button class="big" data-do="setDone">${I.check} ${warm?'گرم‌کردنی '+fa(G.length+1):'ست '+fa(setNo)+(extra?' (اضافه)':'')} تموم شد</button>
+ <div class="wnav"><button class="btn ghost sm ${W.idx?'':'dim'}" data-do="prevEx">${I.back} قبلی</button>${L.length||G.length?'<button class="btn ghost sm" data-do="undo">حذف ست آخر</button>':'<span></span>'}<button class="btn ghost sm ${W.idx<W.ex.length-1?'':'dim'}" data-do="nextEx">بعدی ${I.fwd}</button></div>
  ${allDone()?`<div class="alld"><b>همه‌ی حرکت‌ها تموم شد. خسته نباشی!</b><button class="big" data-do="wkFinish">ثبت و پایان تمرین</button></div>`:''}`;
  hydrate($('#wk'))}
 
@@ -451,7 +461,10 @@ function openWk(){if(!W)return;$('#wk').hidden=false;document.body.classList.add
 function closeWk(){$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
 function endWk(){cancelSched();W=null;kvSet('active',null).catch(()=>{});$('#wk').hidden=true;$('#rest').hidden=true;document.body.classList.remove('lock');unwake();render()}
 function setDone(){unlock();const ex=cx(),c=cur();c.w=Math.max(0,num($('#wW').value));c.r=Math.max(0,Math.round(num($('#wR').value)));if(!(c.r>0))return toast('تعداد تکرار رو وارد کن');
- (W.log[ex.id]=W.log[ex.id]||[]).push({w:c.w,r:c.r,t:Date.now()});
+ if(inWarm(ex)){const G=W.wlog[ex.id]=W.wlog[ex.id]||[],sp=wus(ex)[G.length];G.push({w:c.w,r:c.r,t:Date.now()});const more=G.length<wus(ex).length,n2=more?wus(ex)[G.length]:null,wc=more?null:(W.cur[ex.id]||(W.cur[ex.id]=prefill(ex)));
+  const nx=more?'بعدی: گرم‌کردنی '+fa(G.length+1)+' · '+wtW(n2.w)+' × '+fa(n2.r):'بعدی: ست ۱ از '+fa(ex.sets)+' · '+wtxt(wc.w)+' × '+fa(wc.r);renderWk();$('#wk').scrollTop=0;
+  if(sp.rest>0){W.rest={end:Date.now()+sp.rest*1000,total:sp.rest,next:nx};showRest();scheduleRest()}saveW();return}
+ (W.log[ex.id]=W.log[ex.id]||[]).push({w:c.w,r:c.r,t:Date.now()});{const nr=ex.repList&&ex.repList[W.log[ex.id].length];if(nr)c.r=nr}
  const rem=i=>(W.log[W.ex[i].id]||[]).length<W.ex[i].sets,[a,b]=grp(W.ex,W.idx),from=W.idx;let ni=-1,rest=true;
  if(a<b){for(let i=from+1;i<=b;i++)if(rem(i)){ni=i;rest=false;break}if(ni<0)for(let i=a;i<=b;i++)if(rem(i)){ni=i;break}}else if(rem(from))ni=from;
  if(ni<0)ni=nextUnf();
@@ -466,7 +479,7 @@ function tickRest(){if(!W||!W.rest)return;const rem=(W.rest.end-Date.now())/1000
  const sec=Math.ceil(rem);if(!schedOK&&sec<=3&&sec>0&&sec!==lastTick){lastTick=sec;beep('tick')}if(rem<=0)restDone()}
 function restDone(){const late=Date.now()-W.rest.end;W.rest=null;saveW();if(!schedOK&&late<4000)beep('end');sched=[];schedOK=false;try{navigator.vibrate&&navigator.vibrate([250,120,250])}catch(e){}
  const el=$('#rest');if($('#wk').hidden){el.hidden=true;return toast('استراحت تموم شد؛ وقت ست بعدیه')}el.classList.add('go');el.innerHTML='<div class="rin"><p class="gohead">وقت ست بعدیه!</p></div>';el.hidden=false;setTimeout(()=>{if(!W||!W.rest){el.hidden=true;el.classList.remove('go')}},1400)}
-async function finishWk(){const entries=W.ex.map(e=>({exId:e.id,name:e.name,sets:(W.log[e.id]||[]).map(s=>({w:s.w,r:s.r}))})).filter(e=>e.sets.length);
+async function finishWk(){const entries=W.ex.map(e=>({exId:e.id,name:e.name,sets:(W.log[e.id]||[]).map(s=>({w:s.w,r:s.r})),warm:((W.wlog||{})[e.id]||[]).map(s=>({w:s.w,r:s.r}))})).filter(e=>e.sets.length);
  if(!entries.length){if(await ask('هنوز هیچ ستی ثبت نکردی. تمرین بدون ذخیره بسته بشه؟','ببند'))endWk();return}
  if(!allDone()&&!await ask('چند ست هنوز مونده. تمرین همین‌جا تموم و ذخیره بشه؟','تموم و ذخیره کن',false))return;
  const prs=entries.filter(e=>{const h=histFor(e.name);return h.length&&top(e)>Math.max(...h.map(x=>top(x.e)))});
@@ -499,7 +512,8 @@ wkMin:()=>closeWk(),wkFinish:()=>finishWk(),
 wDec:()=>adj('w',-S.settings.step),wInc:()=>adj('w',S.settings.step),rDec:()=>adj('r',-1),rInc:()=>adj('r',1),
 applySug:id=>{const c=cur();c.w=+id;$('#wW').value=c.w;saveW();renderWk()},
 setDone:()=>setDone(),zoomClose:()=>closeZoom(),zoomRot:()=>$('#zoom').classList.toggle('rot'),noteToggle:(_,t)=>t.classList.toggle('open'),
-undo:()=>{const ex=cx(),L=W.log[ex.id];if(L&&L.length){const l=L.pop();W.cur[ex.id]={w:l.w,r:l.r};saveW();renderWk()}},
+undo:()=>{const ex=cx(),L=W.log[ex.id]||[],G=(W.wlog||{})[ex.id]||[];if(L.length){const l=L.pop();W.cur[ex.id]={w:l.w,r:l.r}}else if(G.length){G.pop();if(W.wskip)delete W.wskip[ex.id];if(W.wcur)delete W.wcur[ex.id]}else return;saveW();renderWk()},
+skipWarm:()=>{W.wskip=W.wskip||{};W.wskip[cx().id]=true;saveW();renderWk()},
 prevEx:()=>{if(W.idx>0){W.idx--;saveW();renderWk()}},nextEx:()=>{if(W.idx<W.ex.length-1){W.idx++;saveW();renderWk()}},
 goEx:id=>{W.idx=+id;saveW();renderWk()},
 skipRest:()=>{cancelSched();W.rest=null;saveW();$('#rest').hidden=true},
